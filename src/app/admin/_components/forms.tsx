@@ -286,7 +286,6 @@ export function SettingsForm({ s }: { s: SiteSettings }) {
         {area("aboutBody", "Body (Markdown)", s.aboutBody, 10)}
         <ImageField name="aboutPhoto" label="Portrait (4:5)" defaultValue={s.aboutPhoto} />
         {t("aboutPhotoCaption", "Photo caption")}
-        {area("now", "Now", s.now.join("\n"), 4, "One per line")}
         {area("skills", "What I reach for", kv(s.skills), 5, "One per line: Group | items", true)}
         {area("education", "Education", kv(s.education), 3, "One per line: Qualification | School · year", true)}
         {area("certificates", "Certificates", s.certificates.join("\n"), 3, "One per line")}

@@ -1,6 +1,8 @@
 # Portfolio
 
-Next.js 16 site built from the Claude Design “Portfolio Site Final Draft”, with a built-in admin. Posts, companies/roles, projects, and all page copy (home, about, contact, socials) live in Postgres and are edited in the admin at a secret URL you set with `ADMIN_PATH`.
+Next.js 16 site built using inspiration from Claude Design ideas, with a built-in admin. Posts, companies/roles, projects, and all page copy (home, about, contact, socials) live in Postgres and are edited in the admin at a secret URL you set with `ADMIN_PATH`.
+
+You can view the deployed site: (https://grishmakhanal.com.np)[https://grishmakhanal.com.np/]
 
 **Full docs: [`docs/`](docs/README.md)** covers architecture, database and migrations, and deploying.
 

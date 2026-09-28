@@ -52,31 +52,6 @@ export default async function About() {
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-x-14 gap-y-12 pb-[72px]">
-        {s.now.length > 0 && (
-          <section>
-            <Label>Now</Label>
-            <ul className="m-0 list-none p-0">
-              {s.now.map((n) => (
-                <li key={n} className="border-b border-rule py-3 font-serif text-[17px] leading-[1.5]">
-                  {n}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-        {s.skills.length > 0 && (
-          <section>
-            <Label>What I reach for</Label>
-            <dl className="m-0">
-              {s.skills.map((g) => (
-                <div key={g.k} className="grid grid-cols-[90px_1fr] gap-4 border-b border-rule py-3">
-                  <dt className="font-mono text-xs leading-[1.9] text-ink-5">{g.k}</dt>
-                  <dd className="m-0 font-serif text-base leading-[1.5]">{g.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-        )}
         {(s.education.length > 0 || s.certificates.length > 0) && (
           <section>
             <Label>Education</Label>
@@ -96,6 +71,19 @@ export default async function About() {
                 ))}
               </>
             )}
+          </section>
+        )}
+        {s.skills.length > 0 && (
+          <section>
+            <Label>What I reach for</Label>
+            <dl className="m-0">
+              {s.skills.map((g) => (
+                <div key={g.k} className="grid grid-cols-[90px_1fr] gap-4 border-b border-rule py-3">
+                  <dt className="font-mono text-xs leading-[1.9] text-ink-5">{g.k}</dt>
+                  <dd className="m-0 font-serif text-base leading-[1.5]">{g.v}</dd>
+                </div>
+              ))}
+            </dl>
           </section>
         )}
       </div>
