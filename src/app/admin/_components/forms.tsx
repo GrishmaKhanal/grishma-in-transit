@@ -136,7 +136,7 @@ export function ProjectForm({ project, companies }: { project?: Project; compani
       <Field label="Description" hint="One or two sentences.">
         <textarea name="summary" rows={3} defaultValue={project?.summary ?? ""} className={input} />
       </Field>
-      <Field label="Stack" hint="Comma separated — shown as “Azure · BullMQ · TS”">
+      <Field label="Stack" hint="Comma separated - shown as “Azure · BullMQ · TS”">
         <input name="tags" defaultValue={project?.tags.join(", ")} className={input} />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -178,7 +178,7 @@ export function CompanyForm({ company }: { company?: Company }) {
         <input name="name" defaultValue={company?.name} required className={`${input} text-lg`} />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Span" hint="e.g. Nov 2025 — now">
+        <Field label="Span" hint="e.g. Nov 2025 - now">
           <input name="span" defaultValue={company?.span} className={input} />
         </Field>
         <Field label="Location" hint="e.g. Remote">
@@ -271,7 +271,7 @@ export function SettingsForm({ s }: { s: SiteSettings }) {
         {area("heroHeadline", "Headline", s.heroHeadline, 2)}
         {area("heroIntro", "Intro", s.heroIntro, 3)}
         {area("langs", "“Mostly in” chips", s.langs.join("\n"), 3, "One per line")}
-        {t("homeWorkLabel", "Work band label", "e.g. Work, 2024 — now")}
+        {t("homeWorkLabel", "Work band label", "e.g. Work, 2024 - now")}
         {area("homeOffClock", "Off the clock (short)", s.homeOffClock, 3)}
       </Section>
 

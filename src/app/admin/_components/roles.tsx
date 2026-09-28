@@ -44,17 +44,17 @@ export function RolesEditor({ initial }: { initial: Role[] }) {
         <div key={i} className="space-y-3 border border-rule p-4">
           <div className="grid gap-3 sm:grid-cols-[2fr_1.5fr_1fr]">
             <input placeholder="Title" value={r.title} onChange={(e) => set(i, "title", e.target.value)} className={input} />
-            <input placeholder="Period — e.g. Nov 2025 — Present" value={r.period} onChange={(e) => set(i, "period", e.target.value)} className={input} />
-            <input placeholder="Duration — e.g. 11 mo" value={r.duration} onChange={(e) => set(i, "duration", e.target.value)} className={input} />
+            <input placeholder="Period - e.g. Nov 2025 - Present" value={r.period} onChange={(e) => set(i, "period", e.target.value)} className={input} />
+            <input placeholder="Duration - e.g. 11 mo" value={r.duration} onChange={(e) => set(i, "duration", e.target.value)} className={input} />
           </div>
           <textarea
-            placeholder="What you did — one bullet per line"
+            placeholder="What you did - one bullet per line"
             rows={4}
             value={r.points}
             onChange={(e) => set(i, "points", e.target.value)}
             className={input}
           />
-          <input placeholder="Stack — comma separated" value={r.stack} onChange={(e) => set(i, "stack", e.target.value)} className={input} />
+          <input placeholder="Stack - comma separated" value={r.stack} onChange={(e) => set(i, "stack", e.target.value)} className={input} />
           <div className="flex gap-4 text-sm text-ink-5">
             <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑ Up</button>
             <button type="button" onClick={() => move(i, 1)} disabled={i === roles.length - 1}>↓ Down</button>

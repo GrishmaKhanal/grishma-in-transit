@@ -72,14 +72,14 @@ export default async function Home() {
 
       <div className="wrap pt-16">
         <section className="max-w-[920px]" aria-labelledby="latest-writing">
-          <SectionLabel strong right={<Link href="/blog">Archive →</Link>}>
+          <SectionLabel strong right={<Link href="/blog">All writing →</Link>}>
             <span id="latest-writing">Latest writing</span>
           </SectionLabel>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-x-16 gap-y-10 pt-8 pb-20">
             {latest ? (
               <Link href={postPath(latest)} className="group block">
                 <div className="font-serif text-[15px] text-accent">{postEyebrow(latest)}</div>
-                <h2 className="mt-3 mb-0 font-serif text-[clamp(34px,4vw,44px)] leading-[1.1] font-bold tracking-[-.015em]">
+                <h2 className="balance mt-3 mb-0 font-serif text-[clamp(24px,2.3vw,28px)] leading-[1.2] font-bold tracking-[-.01em]">
                   {latest.title}
                 </h2>
                 {latest.excerpt && (
@@ -175,7 +175,7 @@ export default async function Home() {
               <details key={p.id} name="home-side" className="group border-b border-rule-soft">
                 <summary className="flex justify-between gap-4 py-3 font-serif text-[17px]">
                   <span>
-                    {p.title} <span className="text-ink-5">— {p.tags.join(" · ")}</span>
+                    {p.title} <span className="text-ink-5">- {p.tags.join(" · ")}</span>
                   </span>
                   <span className="font-mono text-[13px] text-ink-5">
                     <Sign />

@@ -3,7 +3,7 @@ import { ogCard, ogSize } from "@/lib/og";
 
 export const size = ogSize;
 export const contentType = "image/png";
-export const alt = "Grishma Raj Khanal — Software Engineer";
+export const alt = "Grishma Raj Khanal - Software Engineer";
 
 export default async function Image() {
   const s = await getSettings();

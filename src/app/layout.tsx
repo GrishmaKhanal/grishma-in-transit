@@ -12,16 +12,16 @@ export const viewport: Viewport = { themeColor: "#f1f0ec" };
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
-  const title = `${s.name} — ${s.role} in ${s.location}`;
+  const title = `${s.name} - ${s.role} in ${s.location}`;
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: title, template: `%s — ${s.name}` },
+    title: { default: title, template: `%s - ${s.name}` },
     description: s.seoDescription,
     authors: [{ name: s.name, url: SITE_URL }],
     creator: s.name,
-    // Canonical is set per page — never globally, or every page claims to be "/".
+    // Canonical is set per page - never globally, or every page claims to be "/".
     alternates: {
-      types: { "application/rss+xml": [{ url: "/blog/rss.xml", title: `${s.name} — Writing` }] },
+      types: { "application/rss+xml": [{ url: "/blog/rss.xml", title: `${s.name} - Writing` }] },
     },
     openGraph: { type: "website", siteName: s.name, title, description: s.seoDescription },
     twitter: { card: "summary_large_image" },

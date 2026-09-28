@@ -31,7 +31,7 @@ export const posts = pgTable("posts", {
 
 export type Role = {
   title: string;
-  period: string; // "Nov 2025 — Present"
+  period: string; // "Nov 2025 - Present"
   duration: string; // "11 mo"
   points: string[];
   stack: string[];
@@ -40,7 +40,7 @@ export type Role = {
 export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  span: text("span").notNull().default(""), // "Nov 2025 — now"
+  span: text("span").notNull().default(""), // "Nov 2025 - now"
   location: text("location").notNull().default(""), // "Remote"
   siteUrl: text("site_url"),
   siteLabel: text("site_label"),

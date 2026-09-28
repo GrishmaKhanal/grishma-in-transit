@@ -27,20 +27,20 @@ export const seedSettings: SiteSettings = {
   heroEyebrow: "Software engineer · Kathmandu",
   heroHeadline: "I build the systems that move documents and data safely.",
   heroIntro:
-    "Software engineer at ODIN Mortgage & Tax, previously Guardware Australia — working on document pipelines, data-security tooling and API integrations. I write here about the problems I solve along the way.",
+    "Software engineer at ODIN Mortgage & Tax, previously Guardware Australia - working on document pipelines, data-security tooling and API integrations. I write here about the problems I solve along the way.",
   langs: ["Python", "JavaScript / TypeScript", "SQL"],
-  homeWorkLabel: "Work, 2024 — now",
+  homeWorkLabel: "Work, 2024 - now",
   homeOffClock:
     "When I'm not at a keyboard for work, I'm usually tweaking a Linux setup, watching or playing football, or reading tech news I'll later argue about.",
 
   writingIntro:
-    "Working notes on problems I've had to solve — algorithms, pipelines, cloud plumbing. Numbered in the order they were written.",
+    "Working notes on problems I've had to solve - algorithms, pipelines, cloud plumbing. Numbered in the order they were written.",
   workIntro:
-    "Most of what I've built lives inside companies — internal tools, pipelines and products. Here's where, when, and with what.",
-  tinkeringIntro: "Personal and university projects — code on GitHub, not deployed.",
+    "Most of what I've built lives inside companies - internal tools, pipelines and products. Here's where, when, and with what.",
+  tinkeringIntro: "Personal and university projects - code on GitHub, not deployed.",
 
   aboutHeading: "Hi, I'm Grishma.",
-  aboutBody: `I'm a software engineer from Kathmandu. I started at Guardware Australia in early 2024 on data-security products — debugging a legacy C++ app, tightening Microsoft Graph integrations, and eventually starting the Python work that became the core of their document parsing and data-discovery engine.
+  aboutBody: `I'm a software engineer from Kathmandu. I started at Guardware Australia in early 2024 on data-security products - debugging a legacy C++ app, tightening Microsoft Graph integrations, and eventually starting the Python work that became the core of their document parsing and data-discovery engine.
 
 Since November 2025 I've been at ODIN Mortgage & Tax, building the plumbing that moves client documents around: event-driven ingestion on Azure, a portal for collecting documents and signatures, and browser tooling that takes the repetitive typing out of tax returns.
 
@@ -50,7 +50,7 @@ I write here mostly to get things straight in my own head. If a post helps someo
   now: [
     "Software engineer at ODIN Mortgage & Tax",
     "Building a tax-return autofill browser extension",
-    "Writing more — next post in drafts",
+    "Writing more - next post in drafts",
   ],
   skills: [
     { k: "Languages", v: "Python, TypeScript, JavaScript, SQL" },
@@ -127,10 +127,10 @@ The Aho–Corasick algorithm, introduced by Alfred V. Aho and Margaret J. Corasi
 
 #### How it works:
 
-1. **Build a trie** — All keywords are inserted into a trie (prefix tree), where each edge represents a character and terminal nodes mark complete words.
-2. **Add failure links** — Similar to the KMP algorithm, failure links allow the automaton to jump to the longest valid suffix when a mismatch occurs.
-3. **Add output links** — These links make it possible to report multiple matches efficiently when one keyword is a suffix of another.
-4. **Scan the text** — The text is processed character by character while traversing the automaton. Matches are emitted instantly when reached.
+1. **Build a trie** - All keywords are inserted into a trie (prefix tree), where each edge represents a character and terminal nodes mark complete words.
+2. **Add failure links** - Similar to the KMP algorithm, failure links allow the automaton to jump to the longest valid suffix when a mismatch occurs.
+3. **Add output links** - These links make it possible to report multiple matches efficiently when one keyword is a suffix of another.
+4. **Scan the text** - The text is processed character by character while traversing the automaton. Matches are emitted instantly when reached.
 
 **Time Complexity**: Scanning takes \`O(n + m)\` time (n = text length, m = matches). This performance is independent of the number of keywords.
 
@@ -157,7 +157,7 @@ def aho_corasick_search(text, keywords):
 
 ## Final Thoughts
 
-If you're searching for just a handful of keywords, simple methods are often enough. But as soon as scale enters the picture — large documents, massive keyword lists, or real-time scanning — specialized algorithms like Aho–Corasick become helpful.
+If you're searching for just a handful of keywords, simple methods are often enough. But as soon as scale enters the picture - large documents, massive keyword lists, or real-time scanning - specialized algorithms like Aho–Corasick become helpful.
 `;
 
 const now = new Date("2026-01-01T00:00:00Z");
@@ -171,7 +171,7 @@ export const seedPosts: Post[] = [
     title: "Multi-string matching in Python",
     subtitle: "Getting Started With Multi-Pattern String Matching in Python",
     excerpt:
-      "Searching a document for thousands of patterns at once — why the naive loop breaks down, and how Aho-Corasick does it in a single pass.",
+      "Searching a document for thousands of patterns at once - why the naive loop breaks down, and how Aho-Corasick does it in a single pass.",
     content: stringMatching,
     tags: ["Python", "Algorithms", "Aho-Corasick", "DLP"],
     coverImage: "/assets/An-Aho-Corasick-automato.jpg",
@@ -195,7 +195,7 @@ export const seedCompanies: Company[] = [
   company({
     id: 1,
     name: "ODIN Mortgage & Tax",
-    span: "Nov 2025 — now",
+    span: "Nov 2025 - now",
     location: "Remote",
     siteUrl: "https://odinmortgage.com",
     siteLabel: "odinmortgage.com",
@@ -206,12 +206,12 @@ export const seedCompanies: Company[] = [
     roles: [
       {
         title: "Software Engineer",
-        period: "Nov 2025 — Present",
+        period: "Nov 2025 - Present",
         duration: "11 mo",
         stack: ["Python", "TypeScript", "PostgreSQL", "Azure Functions", "Blob Storage", "Service Bus", "BullMQ", "Entra External ID", "WXT"],
         points: [
           "Built event-driven document ingestion on Azure Blob Storage and Service Bus, with BullMQ queues, duplicate-processing prevention and Google Drive sync.",
-          "Delivered a client document-collection and e-signature portal replacing a SaaS product — Azure Functions backend, Static Web App frontend, passwordless OTP sign-in via Entra External ID, Annature signing.",
+          "Delivered a client document-collection and e-signature portal replacing a SaaS product - Azure Functions backend, Static Web App frontend, passwordless OTP sign-in via Entra External ID, Annature signing.",
           "Started a WXT browser extension that autofills tax returns from CRM data, plus Python browser automation with LLM-based address parsing.",
         ],
       },
@@ -220,29 +220,29 @@ export const seedCompanies: Company[] = [
   company({
     id: 2,
     name: "Guardware Australia",
-    span: "Feb 2024 — Nov 2025",
+    span: "Feb 2024 - Nov 2025",
     location: "Remote",
     siteUrl: "https://guardware.com.au",
     siteLabel: "guardware.com.au",
     summary:
-      "Data-security products — started the Python text-extraction initiative, then built the core processing engine behind data discovery.",
+      "Data-security products - started the Python text-extraction initiative, then built the core processing engine behind data discovery.",
     stack: ["Python", "C++", "JavaScript", "MySQL", "Graph API"],
     sortOrder: 1,
     roles: [
       {
         title: "Intermediate Systems Engineer",
-        period: "Jun 2025 — Nov 2025",
+        period: "Jun 2025 - Nov 2025",
         duration: "5 mo",
         stack: ["Python", "MySQL", "Aho-Corasick", "OCR", "asyncio"],
         points: [
-          "Designed and implemented the core processing unit of a Python application — Aho-Corasick string search and asynchronous tasks, built for performance.",
+          "Designed and implemented the core processing unit of a Python application - Aho-Corasick string search and asynchronous tasks, built for performance.",
           "Engineered a rule evaluator that detects sensitive data patterns via regex / word matching, with context extraction.",
           "Built a parser extracting text from documents and images (OCR), including archive handling.",
         ],
       },
       {
         title: "Systems Engineer",
-        period: "Feb 2024 — Jun 2025",
+        period: "Feb 2024 - Jun 2025",
         duration: "1 yr 4 mo",
         stack: ["C++", "Python", "JavaScript", "MySQL", "Microsoft Graph", "VBA", "Manifest V3"],
         points: [
@@ -273,10 +273,10 @@ const project = (p: Partial<Project> & { title: string; summary: string; tags: s
 
 export const seedProjects: Project[] = [
   project({ companyId: 1, title: "Document ingestion pipeline", summary: "Event-driven intake from Blob Storage + Service Bus into queued processing and Drive sync.", tags: ["Azure", "BullMQ", "TS"] }),
-  project({ companyId: 1, title: "Client document & e-sign portal", summary: "Passwordless portal for clients to upload documents and sign — replaced a paid SaaS tool.", tags: ["Azure Functions", "SWA"] }),
+  project({ companyId: 1, title: "Client document & e-sign portal", summary: "Passwordless portal for clients to upload documents and sign - replaced a paid SaaS tool.", tags: ["Azure Functions", "SWA"] }),
   project({ companyId: 1, title: "Tax-return autofill extension", summary: "Browser extension filling tax returns from CRM data, with LLM address parsing.", tags: ["WXT", "Python"] }),
   project({ companyId: 2, title: "Guardware INSIGHT", summary: "Data-security solution for monitoring and mitigating business risk.", tags: ["Python", "MySQL", "PHP"], liveUrl: "https://guardware.com.au", linkLabel: "Product" }),
-  project({ companyId: 2, title: "Guardware DISCOVER", summary: "Data discovery — locates and classifies sensitive information (PII, PCI).", tags: ["Python", "MySQL", "SQLite"], liveUrl: "https://guardware.com.au", linkLabel: "Product" }),
+  project({ companyId: 2, title: "Guardware DISCOVER", summary: "Data discovery - locates and classifies sensitive information (PII, PCI).", tags: ["Python", "MySQL", "SQLite"], liveUrl: "https://guardware.com.au", linkLabel: "Product" }),
   project({ title: "Supply Chain DLT", summary: "Decentralised ledger on Ethereum for transparent supply-chain tracking and asset ownership, with a React UI for transactions.", tags: ["Solidity", "React", "Node"], repoUrl: gh, status: "Not deployed" }),
   project({ title: "Browser Upload Monitor", summary: "Extension that monitors and blocks file uploads, logs email addresses and reports metadata to a Node server.", tags: ["JavaScript", "Node"], repoUrl: gh, status: "Not deployed" }),
   project({ title: "Library Management", summary: "Desktop app for books, members and late-return tracking.", tags: ["PyQt5", "SQLite"], repoUrl: gh, status: "Not deployed" }),

@@ -87,7 +87,7 @@ export async function savePost(_: FormState, fd: FormData): Promise<FormState> {
     seoTitle: optional(fd, "seoTitle"),
     seoDescription: optional(fd, "seoDescription"),
     published,
-    // The form shows/submits UTC ("YYYY-MM-DDTHH:mm", no zone) — parse it as UTC,
+    // The form shows/submits UTC ("YYYY-MM-DDTHH:mm", no zone) - parse it as UTC,
     // not server-local time, or every save shifts the date by the server's offset.
     publishedAt: publishedAtRaw ? new Date(`${publishedAtRaw}Z`) : published ? new Date() : null,
     updatedAt: new Date(),

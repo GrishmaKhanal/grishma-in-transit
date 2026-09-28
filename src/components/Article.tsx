@@ -101,7 +101,7 @@ export async function Article({ kind, slug }: { kind: PostKind; slug: string }) 
           <div>
             <div className="eyebrow text-ink-5">Written by</div>
             <div className="mt-2 font-serif text-[17px] leading-[1.5]">
-              {s.name} — {s.role.toLowerCase()} in {s.location}.{" "}
+              {s.name} - {s.role.toLowerCase()} in {s.location}.{" "}
               <Link href="/about" className="border-b border-ink">
                 About
               </Link>

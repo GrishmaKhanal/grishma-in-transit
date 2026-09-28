@@ -41,5 +41,5 @@ yarn-error.log*
 next-env.d.ts
 !.env.example
 
-# Claude Design export (contains resume PDF) — reference only
+# Claude Design export (contains resume PDF) - reference only
 /design/

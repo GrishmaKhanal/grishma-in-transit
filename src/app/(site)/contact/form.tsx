@@ -12,7 +12,7 @@ export function ContactForm() {
     <form action={action} className="flex flex-col gap-[22px] bg-panel p-[clamp(24px,4vw,40px)]">
       <div className="eyebrow text-ink-4">Write a note</div>
       {state?.ok ? (
-        <p className="m-0 font-serif text-[19px] leading-[1.55]">Thanks — your note landed in my inbox. I&apos;ll reply by email.</p>
+        <p className="m-0 font-serif text-[19px] leading-[1.55]">Thanks - your note landed in my inbox. I&apos;ll reply by email.</p>
       ) : (
         <>
           <label className="flex flex-col gap-1.5 text-[13px] text-ink-4">

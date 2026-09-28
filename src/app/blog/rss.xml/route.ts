@@ -25,7 +25,7 @@ ${p.tags.map((t) => `      <category>${esc(t)}</category>`).join("\n")}
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${esc(s.name)} — Writing</title>
+    <title>${esc(s.name)} - Writing</title>
     <link>${SITE_URL}</link>
     <description>${esc(s.seoDescription)}</description>
     <atom:link href="${abs("/blog/rss.xml")}" rel="self" type="application/rss+xml" />
