@@ -113,8 +113,8 @@ export default async function Home() {
                 Full history →
               </Link>
             </div>
-            {work.companies.map((c, i) => (
-              <details key={c.id} name="home-company" open={i === 0} className="group border-b border-night-rule">
+            {work.companies.map((c) => (
+              <details key={c.id} name="home-company" className="group border-b border-night-rule">
                 <summary className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-x-10 gap-y-4 py-7">
                   <div>
                     <h3 className="m-0 font-serif text-[26px] leading-[1.15] font-bold">{c.name}</h3>
