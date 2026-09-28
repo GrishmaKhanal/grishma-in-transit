@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
+import { HeroVideo } from "@/components/HeroVideo";
 import { Sign } from "@/components/Sign";
 import { SectionLabel } from "@/components/chrome";
 import { getPublishedPosts, getSettings, getWork } from "@/lib/data";
@@ -30,35 +31,46 @@ export default async function Home() {
         }}
       />
 
-      <div className="wrap">
-        <section className="max-w-[820px] pt-[clamp(56px,8vw,88px)] pb-[72px]">
-          <div className="text-xs font-semibold tracking-[.12em] text-accent uppercase">{s.heroEyebrow}</div>
-          <h1 className="balance mt-4 mb-0 font-serif text-[clamp(40px,5.6vw,60px)] leading-[1.04] font-bold tracking-[-.025em]">
-            {s.heroHeadline}
-          </h1>
-          <p className="pretty mt-[22px] mb-0 max-w-[640px] font-serif text-[19px] leading-[1.55] text-ink-3">{s.heroIntro}</p>
-          {s.langs.length > 0 && (
-            <div className="mt-[26px] flex flex-wrap items-center gap-2">
-              <span className="mr-1.5 text-[11px] font-medium tracking-[.12em] text-ink-4 uppercase">Mostly in</span>
-              {s.langs.map((l) => (
-                <span key={l} className="border border-ink px-[11px] py-1.5 font-mono text-[13px] font-medium">
-                  {l}
-                </span>
+      {/* Below xl: text, then the full video. At xl the video fills the section and the text
+          sits top-left over the sky, clear of the bus in the lower third. */}
+      <section className="relative border-b border-ink xl:h-[min(56.25vw,calc(100svh-77px))] xl:min-h-[640px]">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[1] hidden bg-[radial-gradient(ellipse_62%_78%_at_0%_22%,rgb(241_240_236/.96)_0%,rgb(241_240_236/.9)_42%,rgb(241_240_236/0)_78%)] xl:block"
+        />
+        <div className="relative z-[2] mx-auto max-w-[1120px] px-[clamp(20px,5vw,56px)] pt-[clamp(56px,8vw,88px)] pb-14 xl:mx-0 xl:w-fit xl:max-w-none xl:pt-[clamp(56px,6.5vh,88px)] xl:pr-0 xl:pb-0 xl:pl-[108px]">
+          <div className="max-w-[820px] xl:max-w-[680px]">
+            <div className="text-xs font-semibold tracking-[.12em] text-accent uppercase">{s.heroEyebrow}</div>
+            <h1 className="balance mt-4 mb-0 font-serif text-[clamp(40px,5.6vw,60px)] leading-[1.04] font-bold tracking-[-.025em] xl:text-[clamp(46px,3.4vw,60px)]">
+              {s.heroHeadline}
+            </h1>
+            <p className="pretty mt-[22px] mb-0 max-w-[640px] font-serif text-[19px] leading-[1.55] text-ink-3">{s.heroIntro}</p>
+            {s.langs.length > 0 && (
+              <div className="mt-[26px] flex flex-wrap items-center gap-2">
+                <span className="mr-1.5 text-[11px] font-medium tracking-[.12em] text-ink-4 uppercase">Mostly in</span>
+                {s.langs.map((l) => (
+                  <span key={l} className="border border-ink px-[11px] py-1.5 font-mono text-[13px] font-medium">
+                    {l}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mt-6 flex flex-wrap gap-[18px] text-[13px] font-medium">
+              <Link href="/about" className="border-b border-ink pb-0.5">
+                More about me
+              </Link>
+              {s.socials.map((x) => (
+                <a key={x.url} href={x.url} rel="me noopener" target="_blank" className="text-ink-4">
+                  {x.label} ↗
+                </a>
               ))}
             </div>
-          )}
-          <div className="mt-6 flex flex-wrap gap-[18px] text-[13px] font-medium">
-            <Link href="/about" className="border-b border-ink pb-0.5">
-              More about me
-            </Link>
-            {s.socials.map((x) => (
-              <a key={x.url} href={x.url} rel="me noopener" target="_blank" className="text-ink-4">
-                {x.label} ↗
-              </a>
-            ))}
           </div>
-        </section>
+        </div>
+        <HeroVideo className="aspect-video border-t border-ink xl:absolute xl:inset-0 xl:z-0 xl:aspect-auto xl:border-t-0" />
+      </section>
 
+      <div className="wrap pt-16">
         <section className="max-w-[920px]" aria-labelledby="latest-writing">
           <SectionLabel strong right={<Link href="/blog">Archive →</Link>}>
             <span id="latest-writing">Latest writing</span>

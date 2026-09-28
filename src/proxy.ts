@@ -42,5 +42,5 @@ export async function proxy(req: NextRequest) {
 // Matchers must be static, so the proxy sees every page request (ADMIN_PATH is
 // only known at runtime). Static assets are skipped; the check above is cheap.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|manifest.webmanifest|icons/|images/|assets/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|manifest.webmanifest|icons/|images/|assets/|video/).*)"],
 };
