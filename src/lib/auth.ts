@@ -1,7 +1,6 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { timingSafeEqual } from "node:crypto";
 
 export const SESSION_COOKIE = "admin_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -14,13 +13,7 @@ function secret() {
   return new TextEncoder().encode(s);
 }
 
-export function checkPassword(input: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  const a = Buffer.from(input);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
+export { checkCredentials } from "./credentials";
 
 export async function createSession() {
   const token = await new SignJWT({ role: "admin" })

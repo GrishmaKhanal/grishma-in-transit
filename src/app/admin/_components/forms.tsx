@@ -25,11 +25,23 @@ export function LoginForm() {
       </div>
       <form action={action} className="space-y-5 border border-t-0 border-ink bg-panel p-6">
         <label className="flex flex-col gap-1.5 text-[13px] text-ink-4">
+          Username
+          <input
+            name="username"
+            type="text"
+            autoFocus
+            required
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            className="border-0 border-b border-ink bg-transparent py-2 font-serif text-[19px] outline-none focus:border-accent"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-[13px] text-ink-4">
           Password
           <input
             name="password"
             type="password"
-            autoFocus
             required
             autoComplete="current-password"
             className="border-0 border-b border-ink bg-transparent py-2 font-serif text-[19px] outline-none focus:border-accent"

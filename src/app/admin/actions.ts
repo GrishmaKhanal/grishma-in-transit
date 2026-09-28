@@ -8,7 +8,7 @@ import { z } from "zod";
 import { db, hasDb } from "@/db";
 import { companies, messages, posts, projects, settings, type Role, type SiteSettings } from "@/db/schema";
 import { TAGS } from "@/lib/data";
-import { checkPassword, createSession, destroySession, requireAdmin } from "@/lib/auth";
+import { checkCredentials, createSession, destroySession, requireAdmin } from "@/lib/auth";
 import { renderMarkdown } from "@/lib/markdown";
 import { SLUG_RE, slugify } from "@/lib/slug";
 import { ADMIN } from "@/lib/admin-path";
@@ -42,9 +42,9 @@ const pairs = (fd: FormData, k: string) => piped(fd, k, 2).map(([k2, ...v]) => (
 /* ---------- auth ---------- */
 
 export async function login(_: FormState, fd: FormData): Promise<FormState> {
-  if (!checkPassword(str(fd, "password"))) {
+  if (!checkCredentials(str(fd, "username"), String(fd.get("password") ?? ""))) {
     await new Promise((r) => setTimeout(r, 800)); // slow down guessing
-    return { error: "Wrong password." };
+    return { error: "Wrong username or password." };
   }
   await createSession();
   redirect(ADMIN);
