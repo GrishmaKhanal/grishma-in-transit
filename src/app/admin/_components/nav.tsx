@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ADMIN } from "@/lib/admin-path";
 
 const items = [
   ["Dashboard", ""],
@@ -13,13 +12,16 @@ const items = [
   ["Messages", "/messages"],
 ] as const;
 
-export function AdminNav({ unread }: { unread: number }) {
-  const path = usePathname();
+// `base` comes from the server layout so the secret path isn't baked into client JS.
+export function AdminNav({ unread, base }: { unread: number; base: string }) {
+  const pathname = usePathname();
+  // Depending on render timing this may be the public or the internal URL.
+  const rel = pathname.startsWith(base) ? pathname.slice(base.length) : pathname.replace(/^\/admin/, "");
   return (
     <nav aria-label="Admin" className="flex flex-1 flex-wrap">
       {items.map(([label, href], i) => {
-        const full = `${ADMIN}${href}`;
-        const on = href ? path.startsWith(full) : path === ADMIN;
+        const full = `${base}${href}`;
+        const on = href ? rel.startsWith(href) : rel === "";
         return (
           <Link
             key={href}

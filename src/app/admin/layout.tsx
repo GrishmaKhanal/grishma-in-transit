@@ -35,7 +35,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <span className="font-serif text-lg font-extrabold tracking-[-.015em]">Admin</span>
               <span className="font-mono text-[11px] text-ink-4">Content manager</span>
             </div>
-            <AdminNav unread={unread} />
+            <AdminNav unread={unread} base={ADMIN} />
             <div className="flex items-stretch border-l border-ink text-[13px] font-medium">
               <Link href="/" target="_blank" className="flex items-center px-4">
                 View site ↗
