@@ -1,6 +1,8 @@
 # Portfolio
 
-Next.js 16 site built from the Claude Design “Portfolio Site Final Draft”, with a built-in admin. Posts, companies/roles, projects, and all page copy (home, about, contact, socials) live in Postgres and are edited at `/makemeaadmin`.
+Next.js 16 site built from the Claude Design “Portfolio Site Final Draft”, with a built-in admin. Posts, companies/roles, projects, and all page copy (home, about, contact, socials) live in Postgres and are edited in the admin at a secret URL you set with `ADMIN_PATH`.
+
+**Full docs: [`docs/`](docs/README.md)** covers architecture, database and migrations, and deploying.
 
 ## How content reaches crawlers
 - Public pages are statically rendered HTML. DB reads are cached with tags (`src/lib/data.ts`).
@@ -11,21 +13,21 @@ Next.js 16 site built from the Claude Design “Portfolio Site Final Draft”, w
 ## Deploy on Vercel (free tier)
 1. Push this repo to GitHub and import it in Vercel.
 2. In the project, go to **Storage** and add **Neon (Postgres)** and **Blob**. This injects `DATABASE_URL` and `BLOB_READ_WRITE_TOKEN`.
-3. Under **Settings → Environment Variables**, add `ADMIN_PASSWORD`, `SESSION_SECRET` (`openssl rand -base64 48`) and `NEXT_PUBLIC_SITE_URL`.
-4. Locally, pull the env and create the tables plus seed content:
+3. Under **Settings → Environment Variables**, add `ADMIN_PATH` (e.g. `/studio-$(openssl rand -hex 4)`), `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `SESSION_SECRET` (`openssl rand -base64 48`) and `NEXT_PUBLIC_SITE_URL`. Leave the Build Command empty so `vercel-build` runs migrations.
+4. Redeploy. The production build runs `drizzle-kit migrate` to create the tables. Then seed starter content once:
    ```sh
    npx vercel link && npx vercel env pull .env
-   npm run db:push && npm run db:seed
+   npm run db:seed
    ```
-5. Redeploy. Then add your domain in Vercel and submit `https://<domain>/sitemap.xml` in Google Search Console.
+5. Add your domain in Vercel and submit `https://<domain>/sitemap.xml` in Google Search Console.
 
 ## Local dev
-A local Postgres runs in podman; `.env` (git-ignored) holds the local DB URL, admin password and session secret.
+A local Postgres runs in podman; `.env` (git-ignored) holds the local DB URL, admin path, admin username and password and session secret. Schema changes: `npm run db:generate` then `npm run db:migrate`. See [docs/database/migrations.md](docs/database/migrations.md).
 ```sh
 podman start portfolio-pg     # first time: podman run -d --name portfolio-pg -e POSTGRES_USER=portfolio \
                               #   -e POSTGRES_PASSWORD=portfolio -e POSTGRES_DB=portfolio -p 5433:5432 postgres:17-alpine
-npm run db:push && npm run db:seed   # first time only
-npm run dev                   # admin at http://localhost:3000/makemeaadmin
+npm run db:migrate && npm run db:seed   # first time only
+npm run dev                   # admin at http://localhost:3000$ADMIN_PATH
 ```
 Any non-Neon `DATABASE_URL` uses node-postgres; Neon URLs use the serverless HTTP driver. Without `DATABASE_URL` the site shows seed content, read-only.
 `npm run db:studio` opens a DB browser. Image uploads need `BLOB_READ_WRITE_TOKEN` (from Vercel → Storage → Blob).
@@ -40,7 +42,8 @@ Any non-Neon `DATABASE_URL` uses node-postgres; Neon URLs use the serverless HTT
   | newly published post | present |
   | edited post | fresh `lastmod` |
   | unpublished draft | absent, 404 |
-  | `/makemeaadmin` | `noindex` header |
+  | `$ADMIN_PATH` | `noindex` header |
+  | `/admin` | 404 |
   | unknown slug | 404 |
 
   Local run 2026-09-26 (no database connected): the article, 404, admin noindex and sitemap rows passed. The three rows that need a database aren't tested yet.
