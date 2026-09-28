@@ -9,7 +9,7 @@ Posts, work, site copy: **just save in the admin.** No deploy. See [../architect
 ```sh
 git checkout -b my-change
 # ...edit, npm run dev, npm run lint...
-git push -u origin my-change     # Vercel builds a preview URL
+git push -u origin my-change     # the host builds a preview URL
 # check the preview, then merge to main → production deploy
 ```
 
@@ -26,11 +26,10 @@ git add src/db/schema.ts drizzle/ && git commit
 When `main` deploys, the build runs:
 
 ```
-vercel-build
+npm run build
  ├─ tsx scripts/migrate-on-deploy.ts
- │    ├─ no DATABASE_URL           → skip
- │    ├─ VERCEL_ENV=preview (etc.) → skip unless MIGRATE_PREVIEWS=1
- │    └─ production                → drizzle-kit migrate   (build fails if this fails)
+ │    ├─ RUN_MIGRATIONS unset (previews, local) → skip
+ │    └─ RUN_MIGRATIONS=true (production)       → drizzle-kit migrate   (build fails if this fails)
  └─ next build
 ```
 
@@ -45,29 +44,25 @@ If the migration fails, the build fails and the old deploy keeps serving. If the
 
 ### Running migrations by hand instead
 
-If you'd rather not migrate from the build (for example, to watch it happen), set the Build Command in Vercel to `next build`, then before merging:
+If you'd rather not migrate from the build (for example, to watch it happen), remove `RUN_MIGRATIONS` from production, then before merging run, in your own terminal:
 
 ```sh
-npx vercel env pull .env.production.local --environment=production
-DATABASE_URL_UNPOOLED=... npm run db:migrate      # or load that file into your shell
+DATABASE_URL='<production connection string>' DATABASE_URL_UNPOOLED='<same, or the direct one>' npm run db:migrate
 ```
 
 ## Preview deployments
 
-By default, previews **share the production database** and skip migrations. That means:
+With `DATABASE_URL` scoped to production only (the recommended setup), previews have **no database**. They render the built-in seed content read-only, and their admin can't save. That's enough to check layout and code.
 
-- A preview whose code needs a new column will error on those pages until the migration reaches production. Usually that's acceptable for a portfolio.
-- Content you edit through a preview's admin edits production.
-
-For isolated previews, turn on **Neon → "Create a branch for each preview deployment"** in the Vercel integration. Each preview then gets its own copy-on-write copy of production data and its own `DATABASE_URL`. Then set `MIGRATE_PREVIEWS=1` for the **Preview** environment only, so previews apply their own migrations to their own branch.
+If you want previews with real data, give the preview context its **own** database (a copy or branch of production) as `DATABASE_URL`, plus `RUN_MIGRATIONS=true` for previews. Never point previews at the production database with `RUN_MIGRATIONS=true`.
 
 ## Rollback
 
 | Problem | Fix |
 |---|---|
-| Bad code | Vercel → Deployments → previous production deploy → **Instant Rollback**. Seconds. The DB is untouched. |
+| Bad code | Republish the previous deploy (Netlify: **Deploys → pick one → Publish deploy**; Vercel: **Instant Rollback**). Seconds. The DB is untouched. |
 | Bad migration | Write a new migration that reverses it and deploy (roll forward). |
-| Lost or corrupted data | Neon → Branches → restore to a point in time (within the free-tier history window). |
+| Lost or corrupted data | Restore from your provider's backups or point-in-time restore. |
 
 ## After every production deploy
 

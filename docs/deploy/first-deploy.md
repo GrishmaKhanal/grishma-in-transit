@@ -1,74 +1,48 @@
-# First deploy
+# First deploy (any host)
 
-A one-time setup. It takes about 15 minutes, all on free tiers (Vercel Hobby, Neon Free, Blob).
+The app is a standard Next.js server. It needs a Node host that runs Next.js (Netlify, Vercel, Render, Railway, Fly, a VPS with `npm start`) and one Postgres database. Nothing in the code is tied to a host.
 
-## 1. Push to GitHub
+For a click-by-click Netlify walkthrough, see [netlify.md](netlify.md).
 
-```sh
-git add -A && git commit -m "Portfolio site"
-gh repo create claude-design-portfolio --private --source . --push
-```
+## What every host needs
 
-## 2. Import into Vercel
+| Setting | Value |
+|---|---|
+| Install | `npm ci` (hosts do this by default) |
+| Build command | `npm run build` |
+| Start (servers/VPS only) | `npm start` |
+| Node | 22 |
+| Env vars | `DATABASE_URL`, `RUN_MIGRATIONS=true` (production), `ADMIN_PATH`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `SESSION_SECRET`, `SITE_URL`. See [env-vars.md](env-vars.md). |
 
-**vercel.com → Add New → Project →** pick the repo. Keep the defaults:
-
-- Framework: **Next.js**
-- Build Command: **leave empty.** Vercel then runs the `vercel-build` script from `package.json`, which migrates and then builds. If you override this field, the migrations silently stop running.
-
-The first build succeeds without a database (it serves seed content).
-
-## 3. Add storage
-
-**Project → Storage**
-
-1. **Create → Neon (Postgres)** and connect it to the project, for all environments. This injects `DATABASE_URL`, `DATABASE_URL_UNPOOLED` and friends.
-   - Optional but recommended: in the Neon integration settings, enable **a branch per preview deployment**. See [releasing.md](releasing.md#preview-deployments).
-2. **Create → Blob** and connect it. This injects `BLOB_READ_WRITE_TOKEN`.
-
-## 4. Add your variables
-
-**Settings → Environment Variables** (Production, then Preview with different secrets):
+`npm run build` is `tsx scripts/migrate-on-deploy.ts && next build`:
 
 ```
-ADMIN_PATH            /studio-xxxxxxxx       # echo "/studio-$(openssl rand -hex 4)"
-ADMIN_USERNAME        <your login name>
-ADMIN_PASSWORD        <long random password>
-SESSION_SECRET        <openssl rand -base64 48>
-NEXT_PUBLIC_SITE_URL  https://grishmakhanal.com.np
+npm run build
+ ├─ RUN_MIGRATIONS != "true"            → skip migrations
+ ├─ RUN_MIGRATIONS=true, no DATABASE_URL → fail the build (misconfigured)
+ ├─ RUN_MIGRATIONS=true                 → drizzle-kit migrate (fails the build if it fails)
+ └─ next build
 ```
 
-Details for each are in [env-vars.md](env-vars.md).
+## Steps
 
-## 5. Redeploy → tables get created
+1. **Create the database** anywhere and copy its connection string. For migrations, prefer a direct (non-pooled) one if the provider offers one.
+2. **Connect the repo** to the host and set the build command and env vars above.
+3. **Deploy.** The build log shows `[✓] migrations applied successfully!`. That's `drizzle/*.sql` creating the tables.
+4. **Add content once.** Log in at `https://<site><ADMIN_PATH>` and click **Import starter content**. Or, from your terminal:
+   ```sh
+   DATABASE_URL='<production connection string>' npm run db:seed
+   ```
+   The seed is idempotent and never overwrites existing rows.
+5. **Check it.**
+   - `/` shows your content.
+   - `<ADMIN_PATH>` shows the login form.
+   - `/admin` returns 404.
+   - `/sitemap.xml` URLs start with your `SITE_URL`.
+6. **Domain and search.** Attach the domain at the host, set `SITE_URL` to it and redeploy. Then submit `https://<domain>/sitemap.xml` in Google Search Console.
 
-**Deployments → ⋯ → Redeploy** on the latest production deployment. The build log should show:
+## Host notes
 
-```
-Using 'pg' driver for database querying
-[✓] migrations applied successfully!
-```
-
-That's `drizzle/0000_init.sql` creating the five tables.
-
-## 6. Seed starter content (once)
-
-```sh
-npx vercel link
-npx vercel env pull .env      # now your local .env points at production. Careful.
-npm run db:seed
-```
-
-Seeding is idempotent and never overwrites existing rows. Afterwards, point `.env` back at your local DB so you don't edit production by accident.
-
-## 7. Check it
-
-- `https://<vercel-url>/` shows your content
-- `https://<vercel-url>$ADMIN_PATH` shows the login form. Log in, edit a post, reload the public page.
-- `https://<vercel-url>/admin` returns 404
-
-## 8. Domain and search
-
-1. **Settings → Domains → Add** `grishmakhanal.com.np` and follow the DNS instructions.
-2. Make sure `NEXT_PUBLIC_SITE_URL` matches the final domain, and redeploy if you changed it.
-3. In Google Search Console, verify the domain and submit `https://<domain>/sitemap.xml`.
+- **Serverless hosts** (Netlify, Vercel): use a Postgres with a pooled or HTTP endpoint (Netlify Database, Neon). Neon URLs automatically use Neon's HTTP driver.
+- **Long-running servers** (VPS, Render, Fly): any Postgres works. Run `npm run build` with `RUN_MIGRATIONS=true`, then `npm start`. If you run more than one instance, set `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` to the same value on all of them.
+- Uploads are limited to 4 MB per image, which fits every host's request limit.

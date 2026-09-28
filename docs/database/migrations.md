@@ -36,8 +36,8 @@ git push
 | Environment | Who runs migrations | Command |
 |---|---|---|
 | Local | You | `npm run db:migrate` |
-| Vercel **production** | The build, automatically | `vercel-build` → `scripts/migrate-on-deploy.ts` → `drizzle-kit migrate` → `next build` |
-| Vercel **preview** | Skipped by default | Set `MIGRATE_PREVIEWS=1` only if each preview has its own Neon branch (see [../deploy/releasing.md](../deploy/releasing.md#preview-deployments)) |
+| Production (any host) | The build, when `RUN_MIGRATIONS=true` | `npm run build` → `scripts/migrate-on-deploy.ts` → `drizzle-kit migrate` → `next build` |
+| Previews | Skipped (no `RUN_MIGRATIONS`) | Only enable it if previews have their own database (see [../deploy/releasing.md](../deploy/releasing.md#preview-deployments)) |
 | No `DATABASE_URL` | Skipped | The site serves seed content |
 
 Migrations connect with `DATABASE_URL_UNPOOLED` when it's set (Neon's direct connection), otherwise `DATABASE_URL`. `drizzle-kit migrate` records each applied file in `drizzle.__drizzle_migrations`, so re-running it is a no-op.
@@ -77,11 +77,11 @@ npm run db:generate -- --custom --name backfill_reading_time
 # edit the empty drizzle/000N_backfill_reading_time.sql by hand
 ```
 
-Keep them idempotent (`UPDATE ... WHERE col IS NULL`) and quick. They run inside the Vercel build, which has a time limit.
+Keep them idempotent (`UPDATE ... WHERE col IS NULL`) and quick. They run inside the host's build, which has a time limit.
 
 ## Rolling back
 
-Drizzle has no automatic "down" migrations. **Roll forward**: write a new migration that undoes the change, then deploy it. Code rollback (Vercel **Instant Rollback**) doesn't touch the DB. That's why the expand/contract rules above matter: they keep the previous deploy compatible with the current schema. For real data loss, Neon has point-in-time restore (create a branch from a timestamp).
+Drizzle has no automatic "down" migrations. **Roll forward**: write a new migration that undoes the change, then deploy it. Rolling back code (republishing an older deploy) doesn't touch the DB. That's why the expand/contract rules above matter: they keep the previous deploy compatible with the current schema. For real data loss, use your provider's backups or point-in-time restore.
 
 ## Baselining a DB created with `db:push`
 

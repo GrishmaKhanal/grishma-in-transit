@@ -21,7 +21,8 @@ How this site is built, how data moves through it, and how to ship changes.
   - [local-dev.md](database/local-dev.md): local Postgres in podman, seeding, resetting
 - **deploy/**
   - [env-vars.md](deploy/env-vars.md): every environment variable and where it comes from
-  - [first-deploy.md](deploy/first-deploy.md): GitHub → Vercel → Neon → domain, once
+  - [netlify.md](deploy/netlify.md): **Netlify**, step by step after picking the GitHub repo, plus using the DB and how migrations run
+  - [first-deploy.md](deploy/first-deploy.md): the same for any host: what it needs, in order
   - [releasing.md](deploy/releasing.md): the everyday ship loop, previews, rollback
 
 ## Cheat sheet
@@ -34,7 +35,7 @@ npm run db:migrate     # apply pending migrations to $DATABASE_URL
 npm run db:check       # sanity-check the migration history
 npm run db:seed        # insert starter content (idempotent)
 npm run db:studio      # browse the DB in a web UI
-git push               # Vercel builds; production builds run migrations first
+git push               # host builds; with RUN_MIGRATIONS=true (production) the build migrates first
 ```
 
 ## Tests
@@ -45,5 +46,6 @@ git push               # Vercel builds; production builds run migrations first
 |---|---|
 | `credentials.test.ts` | Username and password check: case rules, wrong values, and login disabled when env vars are missing |
 | `admin-routing.test.ts` | `ADMIN_PATH` parsing; the proxy's rewrite, 404, login redirect and session checks |
-| `scripts.test.ts` | `migrate-on-deploy` skip rules, and `dev-db-check` error output (and that it never prints credentials) |
-| `db.integration.test.ts` | Creates a throwaway database beside your local one, runs the real migrations twice and the seed twice, then runs the site's settings and posts queries. It drops the database afterwards and **skips** when no local Postgres is reachable. It never runs against Neon. |
+| `image-type.test.ts` | Uploads are identified by their bytes: PNG/JPEG/GIF/WebP/AVIF accepted; SVG, HTML and renamed files rejected |
+| `scripts.test.ts` | `migrate-on-deploy` runs only with `RUN_MIGRATIONS=true`, and `dev-db-check` error output (and that it never prints credentials) |
+| `db.integration.test.ts` | Creates a throwaway database beside your local one, runs the real migrations twice and the seed twice, then runs the site's settings and posts queries, and stores an image and serves it from `/media/[id]`. It drops the database afterwards and **skips** when no local Postgres is reachable. It never runs against Neon. |

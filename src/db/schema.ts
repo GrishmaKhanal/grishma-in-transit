@@ -130,6 +130,17 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Uploaded images, kept in Postgres so the site needs no separate file storage.
+// Base64 text rather than bytea: every driver (Neon HTTP, node-postgres) returns it
+// the same way. Fine for a portfolio's handful of images, each capped at 4 MB.
+export const media = pgTable("media", {
+  id: text("id").primaryKey(), // random, so URLs can't be enumerated
+  contentType: text("content_type").notNull(),
+  size: integer("size").notNull(),
+  data: text("data").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Post = typeof posts.$inferSelect;
 export type Company = typeof companies.$inferSelect;
 export type Project = typeof projects.$inferSelect;

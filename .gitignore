@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Claude Design export (contains resume PDF) - reference only
 /design/
+
+# Local Netlify folder
+.netlify

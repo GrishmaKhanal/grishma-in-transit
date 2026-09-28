@@ -12,23 +12,23 @@ function run(script: string, env: Record<string, string>) {
   return { code: r.status, out: r.stdout + r.stderr };
 }
 
-test("migrate-on-deploy skips without a database", () => {
-  const r = run("scripts/migrate-on-deploy.ts", { VERCEL_ENV: "production" });
+test("migrate-on-deploy skips unless RUN_MIGRATIONS=true", () => {
+  const r = run("scripts/migrate-on-deploy.ts", { DATABASE_URL: "postgresql://u:p@localhost:1/x" });
   assert.equal(r.code, 0);
-  assert.match(r.out, /no DATABASE_URL, skipping/);
+  assert.match(r.out, /RUN_MIGRATIONS is not 'true', skipping/);
 });
 
-test("migrate-on-deploy skips preview deploys by default", () => {
-  const r = run("scripts/migrate-on-deploy.ts", { VERCEL_ENV: "preview", DATABASE_URL: "postgresql://u:p@localhost:1/x" });
-  assert.equal(r.code, 0);
-  assert.match(r.out, /VERCEL_ENV=preview, skipping/);
+test("migrate-on-deploy fails loudly when asked to migrate without a database", () => {
+  const r = run("scripts/migrate-on-deploy.ts", { RUN_MIGRATIONS: "true" });
+  assert.equal(r.code, 1);
+  assert.match(r.out, /DATABASE_URL is missing/);
 });
 
 test("dev-db-check explains an unreachable database and fails", () => {
   const r = run("scripts/dev-db-check.ts", { DATABASE_URL: "postgresql://u:secretpw@localhost:1/x" });
   assert.equal(r.code, 1);
   assert.match(r.out, /can't reach the database/);
-  assert.match(r.out, /podman start portfolio-pg/);
+  assert.match(r.out, /systemctl start postgresql/);
   assert.doesNotMatch(r.out, /secretpw/, "credentials must not be printed");
 });
 

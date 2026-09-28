@@ -40,7 +40,7 @@ const env = () => ({ ...process.env, DATABASE_URL: testUrl, DATABASE_URL_UNPOOLE
 const npx = (...args: string[]) => spawnSync("npx", args, { env: env(), encoding: "utf8" });
 
 test("migrations apply to an empty database and are idempotent", (t) => {
-  if (!reachable) return t.skip("no local Postgres (run: podman start portfolio-pg)");
+  if (!reachable) return t.skip("no local Postgres (run: sudo systemctl start postgresql)");
   assert.equal(npx("drizzle-kit", "migrate").status, 0, "first migrate");
   assert.equal(npx("drizzle-kit", "migrate").status, 0, "second migrate is a no-op");
 });
@@ -55,6 +55,27 @@ test("seed runs twice without duplicating rows", async (t) => {
   assert.equal(npx("tsx", "scripts/seed.ts").status, 0);
   assert.deepEqual(await count(), first);
   await c.end();
+});
+
+test("an uploaded image is stored in Postgres and served from /media/[id]", async (t) => {
+  if (!reachable) return t.skip("no local Postgres");
+  process.env.DATABASE_URL = testUrl; // src/db reads it at import
+  const { db } = await import("../src/db");
+  const { media } = await import("../src/db/schema");
+  const { GET } = await import("../src/app/media/[id]/route");
+  const png = Buffer.from("89504e470d0a1a0a0000000d49484452", "hex");
+  const id = randomBytes(12).toString("base64url");
+  await db.insert(media).values({ id, contentType: "image/png", size: png.length, data: png.toString("base64") });
+  const get = (i: string) => GET(new Request(`http://x/media/${i}`) as never, { params: Promise.resolve({ id: i }) });
+
+  const res = await get(id);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get("content-type"), "image/png");
+  assert.match(res.headers.get("cache-control")!, /immutable/);
+  assert.match(res.headers.get("content-security-policy")!, /sandbox/);
+  assert.deepEqual(Buffer.from(await res.arrayBuffer()), png);
+  assert.equal((await get("A".repeat(16))).status, 404, "unknown id");
+  assert.equal((await get("../../etc/passwd")).status, 404, "malformed id");
 });
 
 test("the site's settings and posts queries succeed", async (t) => {

@@ -3,15 +3,17 @@
 import { eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { put } from "@vercel/blob";
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { db, hasDb } from "@/db";
-import { companies, messages, posts, projects, settings, type Role, type SiteSettings } from "@/db/schema";
+import { seedDatabase } from "@/db/seed";
+import { companies, media, messages, posts, projects, settings, type Role, type SiteSettings } from "@/db/schema";
 import { TAGS } from "@/lib/data";
 import { checkCredentials, createSession, destroySession, requireAdmin } from "@/lib/auth";
 import { renderMarkdown } from "@/lib/markdown";
 import { SLUG_RE, slugify } from "@/lib/slug";
 import { ADMIN } from "@/lib/admin-path";
+import { MAX_IMAGE_BYTES, sniffImageType } from "@/lib/image-type";
 
 export type FormState = { error?: string; ok?: string } | undefined;
 
@@ -116,6 +118,20 @@ export async function deletePost(fd: FormData) {
   await db.delete(posts).where(eq(posts.id, Number(fd.get("id"))));
   updateTag(TAGS.posts);
   redirect(`${ADMIN}/posts`);
+}
+
+/* ---------- starter content ---------- */
+
+// For a fresh production database (right after the first deploy): the same idempotent
+// seed as `npm run db:seed`, without needing the database URL on your laptop.
+export async function importStarterContent() {
+  await requireAdmin();
+  assertDb();
+  await seedDatabase();
+  updateTag(TAGS.posts);
+  updateTag(TAGS.work);
+  updateTag(TAGS.settings);
+  redirect(ADMIN);
 }
 
 /* ---------- companies ---------- */
@@ -298,16 +314,14 @@ export async function previewMarkdown(src: string) {
 
 export async function uploadImage(fd: FormData): Promise<{ url?: string; error?: string }> {
   await requireAdmin();
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return { error: "Vercel Blob is not connected (BLOB_READ_WRITE_TOKEN missing)." };
-  }
+  if (!hasDb) return { error: "No database connected (DATABASE_URL missing)." };
   const file = fd.get("file");
   if (!(file instanceof File) || !file.size) return { error: "No file." };
-  if (!file.type.startsWith("image/")) return { error: "Images only." };
-  if (file.size > 4 * 1024 * 1024) return { error: "Max 4 MB." };
-  const blob = await put(`uploads/${slugify(file.name.replace(/\.[^.]+$/, ""))}${file.name.match(/\.[^.]+$/)?.[0] ?? ""}`, file, {
-    access: "public",
-    addRandomSuffix: true,
-  });
-  return { url: blob.url };
+  if (file.size > MAX_IMAGE_BYTES) return { error: "Max 4 MB." };
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const contentType = sniffImageType(bytes);
+  if (!contentType) return { error: "PNG, JPEG, GIF, WebP or AVIF only." };
+  const id = randomBytes(12).toString("base64url");
+  await db.insert(media).values({ id, contentType, size: bytes.length, data: bytes.toString("base64") });
+  return { url: `/media/${id}` };
 }

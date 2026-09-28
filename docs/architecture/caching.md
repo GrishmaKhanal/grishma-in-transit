@@ -26,7 +26,7 @@ next visitor to /blog ──▶ cache miss ─┴─▶ query DB once ──▶ 
 
 - Code or style changes, obviously.
 - **Schema changes**, which also need a migration. See [../database/migrations.md](../database/migrations.md).
-- Changing `NEXT_PUBLIC_SITE_URL`, because it's inlined at build time.
+- Changing `SITE_URL`, because pages are built with it.
 
 ## Gotchas
 

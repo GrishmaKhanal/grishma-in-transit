@@ -10,27 +10,31 @@ Next.js 16 site built from the Claude Design “Portfolio Site Final Draft”, w
 - Every post gets a canonical URL, Open Graph/Twitter tags, a generated social card, `BlogPosting` + breadcrumb JSON-LD, and a sitemap entry with `lastmod`.
 - Pages: `/`, `/blog` (Writing), `/blog/<slug>`, `/work`, `/about`, `/contact`, `/sitemap`. Notes use `/notes/<slug>`. Old `/projects`, `/notes` and `/feed.xml` 308-redirect. Don't change a slug after publishing.
 
-## Deploy on Vercel (free tier)
-1. Push this repo to GitHub and import it in Vercel.
-2. In the project, go to **Storage** and add **Neon (Postgres)** and **Blob**. This injects `DATABASE_URL` and `BLOB_READ_WRITE_TOKEN`.
-3. Under **Settings → Environment Variables**, add `ADMIN_PATH` (e.g. `/studio-$(openssl rand -hex 4)`), `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `SESSION_SECRET` (`openssl rand -base64 48`) and `NEXT_PUBLIC_SITE_URL`. Leave the Build Command empty so `vercel-build` runs migrations.
-4. Redeploy. The production build runs `drizzle-kit migrate` to create the tables. Then seed starter content once:
-   ```sh
-   npx vercel link && npx vercel env pull .env
-   npm run db:seed
-   ```
-5. Add your domain in Vercel and submit `https://<domain>/sitemap.xml` in Google Search Console.
+## Deploy (any host)
+One Next.js app plus one Postgres database. Nothing is tied to a host.
+1. Create a Postgres database (e.g. Netlify → Project → Database) and copy its read-write connection string.
+2. Connect the GitHub repo to the host. Build command: `npm run build`.
+3. Set env vars (see [docs/deploy/env-vars.md](docs/deploy/env-vars.md)):
+   - production only: `DATABASE_URL` and `RUN_MIGRATIONS=true`;
+   - all contexts: `ADMIN_PATH`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` and `SESSION_SECRET` (`openssl rand -base64 48`);
+   - `SITE_URL`: your public origin.
+4. Deploy. The build applies `drizzle/*.sql`, then builds.
+5. Log in at `<site><ADMIN_PATH>` and click **Import starter content** (once).
+6. Add your domain, set `SITE_URL` to it, redeploy, and submit `https://<domain>/sitemap.xml` in Google Search Console.
+
+Netlify, step by step: [docs/deploy/netlify.md](docs/deploy/netlify.md).
 
 ## Local dev
-A local Postgres runs in podman; `.env` (git-ignored) holds the local DB URL, admin path, admin username and password and session secret. Schema changes: `npm run db:generate` then `npm run db:migrate`. See [docs/database/migrations.md](docs/database/migrations.md).
+Local dev uses a real Postgres (the system service, or podman); `.env` (git-ignored) holds the local DB URL, admin path, admin username and password and session secret. Schema changes: `npm run db:generate` then `npm run db:migrate`. See [docs/database/migrations.md](docs/database/migrations.md).
 ```sh
-podman start portfolio-pg     # first time: podman run -d --name portfolio-pg -e POSTGRES_USER=portfolio \
-                              #   -e POSTGRES_PASSWORD=portfolio -e POSTGRES_DB=portfolio -p 5433:5432 postgres:17-alpine
-npm run db:migrate && npm run db:seed   # first time only
+sudo systemctl start postgresql         # or: podman start portfolio-pg
+# first time: create the database (psql -h localhost -U postgres -c 'create database portfolio'),
+# set DATABASE_URL in .env, then:
+npm run db:migrate && npm run db:seed
 npm run dev                   # admin at http://localhost:3000$ADMIN_PATH
 ```
 Any non-Neon `DATABASE_URL` uses node-postgres; Neon URLs use the serverless HTTP driver. Without `DATABASE_URL` the site shows seed content, read-only.
-`npm run db:studio` opens a DB browser. Image uploads need `BLOB_READ_WRITE_TOKEN` (from Vercel → Storage → Blob).
+`npm run db:studio` opens a DB browser. Uploaded images are stored in Postgres (`media` table) and served from `/media/<id>`.
 
 ## Evaluation & Improvement
 - **Success metric:** organic search impressions and clicks on `/blog/*` in Google Search Console. The early proxy is the count of sitemap URLs Google reports as indexed.

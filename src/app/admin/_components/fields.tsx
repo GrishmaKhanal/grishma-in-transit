@@ -35,14 +35,14 @@ export function ImageField({ name, label, defaultValue }: { name: string; label:
   const [err, setErr] = useState("");
   const [pending, start] = useTransition();
   return (
-    <Field label={label} hint={err || "Paste a URL or upload (Vercel Blob)."}>
+    <Field label={label} hint={err || "Paste a URL or upload (PNG, JPEG, GIF, WebP, AVIF; max 4 MB)."}>
       <div className="flex gap-2">
         <input name={name} value={value} onChange={(e) => setValue(e.target.value)} className={input} />
         <label className="cursor-pointer whitespace-nowrap border border-rule px-3 py-2 text-sm">
           {pending ? "Uploading…" : "Upload"}
           <input
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
             hidden
             onChange={(e) => {
               const f = e.target.files?.[0];
@@ -100,7 +100,7 @@ export function MarkdownField({ name, defaultValue }: { name: string; defaultVal
           Insert image
           <input
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
             hidden
             onChange={(e) => {
               const f = e.target.files?.[0];

@@ -5,10 +5,9 @@
   "scripts": {
     "predev": "tsx scripts/dev-db-check.ts",
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/migrate-on-deploy.ts && next build",
     "start": "next start",
     "lint": "eslint",
-    "vercel-build": "tsx scripts/migrate-on-deploy.ts && next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",
@@ -19,7 +18,6 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "@vercel/blob": "^2.8.0",
     "drizzle-orm": "^0.45.3",
     "jose": "^6.2.12",
     "marked": "^18.0.14",

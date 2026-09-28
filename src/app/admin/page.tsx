@@ -6,6 +6,7 @@ import { isAdmin } from "@/lib/auth";
 import { ADMIN } from "@/lib/admin-path";
 import { LoginForm } from "./_components/forms";
 import { DbNotice } from "./_nodb";
+import { importStarterContent } from "./actions";
 
 export default async function AdminHome() {
   if (!(await isAdmin())) return <LoginForm />;
@@ -36,6 +37,12 @@ export default async function AdminHome() {
   return (
     <>
       <DbNotice />
+      {hasDb && stats.posts + stats.companies + stats.projects === 0 && (
+        <form action={importStarterContent} className="mb-6 flex flex-wrap items-center justify-between gap-3 border border-rule bg-[#faf9f6] p-4 text-sm">
+          <span>The database is empty. Import the starter posts, work history and settings to get going.</span>
+          <button className="cursor-pointer bg-ink px-4 py-2 text-paper">Import starter content</button>
+        </form>
+      )}
       <h1 className="mb-6 font-serif text-[40px] leading-none font-bold tracking-[-.02em]">Dashboard</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map(([label, n, href, add]) => (

@@ -1,14 +1,14 @@
 import { execSync } from "node:child_process";
 
-// Runs before `next build` on Vercel (see the `vercel-build` script).
-// Production deploys apply pending migrations. Preview deploys skip them unless
-// MIGRATE_PREVIEWS=1, which is only safe when each preview gets its own Neon branch.
-const env = process.env.VERCEL_ENV;
-
-if (!process.env.DATABASE_URL) {
-  console.log("migrate: no DATABASE_URL, skipping (site will serve seed content).");
-} else if (env && env !== "production" && !process.env.MIGRATE_PREVIEWS) {
-  console.log(`migrate: VERCEL_ENV=${env}, skipping. Set MIGRATE_PREVIEWS=1 to run on previews.`);
+// Runs before `next build` (see the `build` script). Migrations are opt-in per
+// environment: set RUN_MIGRATIONS=true only where the build should update the
+// database, normally production. Previews usually share that database, so they
+// must not apply unreleased migrations to it.
+if (process.env.RUN_MIGRATIONS !== "true") {
+  console.log("migrate: RUN_MIGRATIONS is not 'true', skipping.");
+} else if (!process.env.DATABASE_URL) {
+  console.error("migrate: RUN_MIGRATIONS=true but DATABASE_URL is missing.");
+  process.exit(1);
 } else {
   execSync("drizzle-kit migrate", { stdio: "inherit" });
 }

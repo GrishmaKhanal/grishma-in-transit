@@ -17,7 +17,7 @@ async function main() {
   } catch (e) {
     const code = (e as { code?: string }).code ?? (e as Error).message;
     console.error(`\ndb-check: can't reach the database at ${where} (${code}).`);
-    if (/localhost|127\.0\.0\.1/.test(url)) console.error("  Start it:  podman start portfolio-pg");
+    if (/localhost|127\.0\.0\.1/.test(url)) console.error("  Start it:  sudo systemctl start postgresql   (or: podman start portfolio-pg)");
     console.error("  Or clear DATABASE_URL in .env to run on seed content.\n");
     process.exit(1);
   }

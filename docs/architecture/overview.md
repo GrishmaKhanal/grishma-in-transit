@@ -5,9 +5,9 @@
 ## What "one app" means here
 
 ```
-                  ┌────────────────────── one Next.js app on Vercel ──────────────────────┐
- browser ──HTTP──▶│ src/proxy.ts ──▶ pages (React Server Components) ──▶ src/lib/data.ts ──┼──▶ Neon Postgres
-                  │                  forms ──▶ Server Actions ("use server") ──▶ src/db ────┼──▶ Vercel Blob (images)
+                  ┌──────────────────── one Next.js app, any Node host ───────────────────┐
+ browser ──HTTP──▶│ src/proxy.ts ──▶ pages (React Server Components) ──▶ src/lib/data.ts ──┼──▶ Postgres
+                  │                  forms ──▶ Server Actions ("use server") ──▶ src/db ────┼──▶ (images: media table)
                   └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -21,7 +21,7 @@ So the split you'd get from a separate API server already exists. It's enforced 
 | A separate backend would give you | What it costs here |
 |---|---|
 | An HTTP API other clients can call | Nothing else calls it. The only client is this site. |
-| Independent scaling | Traffic is a portfolio's. Vercel already scales functions per route. |
+| Independent scaling | Traffic is a portfolio's. Serverless hosts already scale functions per route. |
 | Independent deploys | Two deploys that have to agree on an API contract. Today one `git push` ships the schema, the queries and the UI together. |
 | Language freedom | Everything is TypeScript. Drizzle types flow from `schema.ts` into the pages with no API layer to keep in sync. |
 
@@ -32,7 +32,7 @@ You'd also take on CORS, a second hosting bill, API auth between the two, and pa
 Revisit this if any of these become true:
 
 1. **Another client needs the data**, for example a mobile app or a third-party integration. Start by adding Route Handlers (`src/app/api/.../route.ts`) in this same app. Move to a separate service only if they outgrow it.
-2. **Long-running or scheduled work** that doesn't fit a request (big imports, heavy image processing, email queues). Use a Vercel Cron or a queue worker for that one job, and keep the site as is.
+2. **Long-running or scheduled work** that doesn't fit a request (big imports, heavy image processing, email queues). Use a scheduled function or a queue worker for that one job, and keep the site as is.
 3. **Several people own different halves** and need separate release cycles.
 
 Even then, the database layer (`src/db/schema.ts` plus `drizzle/`) should stay the single source of truth for the schema, owned by whichever service runs migrations.

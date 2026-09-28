@@ -1,31 +1,58 @@
 # Local database
 
-A Postgres 17 container in podman, reached with `node-postgres`. Any non-Neon `DATABASE_URL` uses that driver automatically.
+Local dev uses real Postgres, the same engine as production (no SQLite). Any Postgres works. The app reaches it with `node-postgres`, and Neon URLs use Neon's HTTP driver instead.
 
-## First time
+## How the pieces fit
+
+| Step | What it does | Who does it |
+|---|---|---|
+| Postgres server | Runs the database engine | Your OS service or a podman container |
+| `CREATE DATABASE portfolio` | Makes an empty database | You, once. **Migrations don't create databases**, only tables. |
+| `DATABASE_URL` in `.env` | `postgresql://USER:PASSWORD@HOST:PORT/DBNAME`. The password lives here and nowhere else. `.env` is git-ignored. | You |
+| `npm run db:migrate` | Creates or updates the tables from `drizzle/*.sql` | You, after each new migration |
+| `npm run db:seed` | Inserts starter content | You, once |
+
+## Option A: the system Postgres (current setup)
+
+Fedora's `postgresql` service on port 5432, logging in as the `postgres` user:
 
 ```sh
-podman run -d --name portfolio-pg \
-  -e POSTGRES_USER=portfolio -e POSTGRES_PASSWORD=portfolio -e POSTGRES_DB=portfolio \
-  -p 5433:5432 postgres:17-alpine
-
-cp .env.example .env
-# set in .env:
-#   DATABASE_URL=postgresql://portfolio:portfolio@localhost:5433/portfolio
-#   ADMIN_PATH=/whatever-you-like
-#   ADMIN_USERNAME=...  ADMIN_PASSWORD=...  SESSION_SECRET=$(openssl rand -base64 48)
-#   NEXT_PUBLIC_SITE_URL=http://localhost:3000
-
+sudo systemctl enable --now postgresql
+psql -h localhost -U postgres -c 'create database portfolio'
+# .env:
+#   DATABASE_URL=postgresql://postgres:<your-password>@localhost:5432/portfolio
 npm run db:migrate
 npm run db:seed
 npm run dev      # admin at http://localhost:3000$ADMIN_PATH
 ```
 
-## Every day
+If `create database` fails with *"template database template1 has a collation version mismatch"*, a system update changed glibc. Refresh the recorded version, then retry:
+
+```sql
+alter database template1 refresh collation version;
+alter database postgres refresh collation version;
+```
+
+## Option B: a podman container
+
+Self-contained, and deletable without touching the system:
 
 ```sh
-podman start portfolio-pg
-npm run dev
+podman run -d --name portfolio-pg \
+  -e POSTGRES_USER=portfolio -e POSTGRES_PASSWORD=portfolio -e POSTGRES_DB=portfolio \
+  -p 5433:5432 postgres:17-alpine
+# .env:  DATABASE_URL=postgresql://portfolio:portfolio@localhost:5433/portfolio
+npm run db:migrate && npm run db:seed
+```
+
+The container creates the database itself (`POSTGRES_DB`). Start it each day with `podman start portfolio-pg`.
+
+## The rest of `.env`
+
+```
+ADMIN_PATH=/whatever-you-like
+ADMIN_USERNAME=...  ADMIN_PASSWORD=...  SESSION_SECRET=$(openssl rand -base64 48)
+SITE_URL=http://localhost:3000
 ```
 
 ## Seeding
@@ -39,7 +66,16 @@ That makes it safe to run against production once after the first deploy. It nev
 
 ## Reset
 
-Wipes everything local and rebuilds from migrations and seed:
+Wipes everything local and rebuilds from migrations and seed.
+
+System Postgres:
+
+```sh
+psql -h localhost -U postgres -c 'drop database portfolio with (force)' -c 'create database portfolio'
+npm run db:migrate && npm run db:seed
+```
+
+Podman:
 
 ```sh
 podman rm -f portfolio-pg
@@ -49,15 +85,15 @@ podman run -d --name portfolio-pg \
 npm run db:migrate && npm run db:seed
 ```
 
-> A DB created earlier with `db:push` has no migration history, so `db:migrate` fails on it (exit 1, often silently). Reset it as above, or baseline it with option B in [migrations.md](migrations.md#baselining-a-db-created-with-dbpush). Your `portfolio-pg` was baselined on 2026-09-28 after confirming its schema was identical to `0000_init.sql`.
+> A DB created earlier with `db:push` has no migration history, so `db:migrate` fails on it (exit 1, often silently). Reset it as above, or baseline it with option B in [migrations.md](migrations.md#baselining-a-db-created-with-dbpush). 
 
 ## "Failed query: select ... from settings" on page load
 
-Drizzle wraps the real error. Nine times out of ten the container is just stopped (`ECONNREFUSED`). `npm run dev` now runs `scripts/dev-db-check.ts` first (the `predev` script). It stops with a clear message if the DB is unreachable and warns if migrations are pending:
+Drizzle wraps the real error. Nine times out of ten the database server is just stopped (`ECONNREFUSED`). `npm run dev` now runs `scripts/dev-db-check.ts` first (the `predev` script). It stops with a clear message if the DB is unreachable and warns if migrations are pending:
 
 ```
-db-check: can't reach the database at postgresql://localhost:5433/portfolio (ECONNREFUSED).
-  Start it:  podman start portfolio-pg
+db-check: can't reach the database at postgresql://localhost:5432/portfolio (ECONNREFUSED).
+  Start it:  sudo systemctl start postgresql   (or: podman start portfolio-pg)
 ```
 
 If the DB is up but the query still fails, look for pending migrations (`npm run db:migrate`) or a missing seed row (`npm run db:seed`).
@@ -65,7 +101,7 @@ If the DB is up but the query still fails, look for pending migrations (`npm run
 ## Tools
 
 - `npm run db:studio` opens a browser UI for tables and rows.
-- `psql postgresql://portfolio:portfolio@localhost:5433/portfolio` gives you raw SQL.
+- `psql "$DATABASE_URL"` (after `set -a; . ./.env`) gives you raw SQL.
 - `npm run db:push` is OK *only* for local experiments you'll throw away. Reset afterwards, before generating a real migration.
 
 ## No database at all
