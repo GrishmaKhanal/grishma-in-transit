@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Tokens from "Portfolio Site Final Draft" (Claude Design). Light-only by design. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: #f1f0ec;
+  --color-panel: #e6e5e0;
+  --color-ink: #111111;
+  --color-ink-body: #1d1d1b;
+  --color-ink-2: #2e2e2a;
+  --color-ink-3: #3d3d38;
+  --color-ink-4: #55554f;
+  --color-ink-5: #6f6e68;
+  --color-ink-6: #8a8983;
+  --color-rule: #d3d2cc;
+  --color-rule-soft: #e0dfd9;
+  --color-rule-strong: #bdbcb5;
+  --color-code: #e2e1dc;
+  --color-accent: oklch(0.56 0.19 32);
+  --color-accent-light: oklch(0.72 0.16 36);
+  --color-online: oklch(0.62 0.12 150);
+  /* dark band */
+  --color-night: #111111;
+  --color-night-card: #1c1c1a;
+  --color-night-rule: #33332f;
+  --color-night-1: #f1f0ec;
+  --color-night-2: #c9c8c1;
+  --color-night-3: #bdbcb5;
+  --color-night-4: #a3a39c;
+  --color-night-5: #8c8b85;
+  --color-night-6: #55554f;
+
+  --font-sans: var(--font-geist), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-source-serif), Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* In the base layer so Tailwind utilities (e.g. text-paper on a link) win. */
+@layer base {
+  html { color-scheme: light; }
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--color-accent); }
+  ::selection { background: oklch(0.85 0.08 32); }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: clamp(20px, 5vw, 56px); }
+.eyebrow { font: 500 11px var(--font-sans); letter-spacing: .14em; text-transform: uppercase; }
+.balance { text-wrap: balance; }
+.pretty { text-wrap: pretty; }
+
+/* <details> accordions: hide default marker */
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+
+/* Article body (server-rendered markdown) */
+.article { font: 400 19px/1.7 var(--font-serif); color: var(--color-ink-body); display: flex; flex-direction: column; gap: 22px; }
+.article > * { margin: 0; }
+.article p, .article li { text-wrap: pretty; }
+.article h2 { margin-top: 16px; font: 700 28px/1.2 var(--font-serif); letter-spacing: -.01em; }
+.article h3 { margin-top: 12px; font: 700 23px/1.25 var(--font-serif); }
+.article h4 { margin-top: 8px; font: 600 19px/1.3 var(--font-serif); }
+.article :is(h2, h3, h4) a.anchor { color: inherit; }
+.article a:not(.anchor) { border-bottom: 1px solid var(--color-ink); }
+.article ul, .article ol { padding-left: 1.3em; display: flex; flex-direction: column; gap: 8px; }
+.article ul { list-style: disc; }
+.article ol { list-style: decimal; }
+.article blockquote { margin: 8px 0; padding-left: 22px; border-left: 1px solid var(--color-accent); font: 400 23px/1.45 var(--font-serif); color: var(--color-ink-4); }
+.article blockquote p { margin: 0; }
+.article :not(pre) > code { font: 400 15px var(--font-mono); background: var(--color-code); padding: 1px 5px; border-radius: 3px; }
+.article pre { margin: 0; padding: 20px 22px; background: #111111 !important; color: #ecebe6; border-radius: 4px; font: 400 14px/1.65 var(--font-mono); overflow-x: auto; }
+.article pre code { font: inherit; }
+.article img { max-width: 100%; height: auto; margin-inline: auto; display: block; }
+.article hr { border: 0; border-top: 1px solid var(--color-rule); }
+.article table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.article th, .article td { border-bottom: 1px solid var(--color-rule); padding: 8px; text-align: left; }
+.article strong { font-weight: 700; }
