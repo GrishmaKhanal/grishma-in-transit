@@ -140,10 +140,18 @@ export async function importStarterContent() {
   await requireAdmin();
   assertDb();
   await seedDatabase();
-  updateTag(TAGS.posts);
-  updateTag(TAGS.work);
-  updateTag(TAGS.settings);
+  expireAll();
   redirect(ADMIN);
+}
+
+const expireAll = () => Object.values(TAGS).forEach((t) => updateTag(t));
+
+// For edits made outside the admin (npm run db:sample, db:studio, raw SQL): they never
+// expire the cache, so public pages would stay stale for up to an hour.
+export async function refreshPublicPages() {
+  await requireAdmin();
+  expireAll();
+  redirect(`${ADMIN}?refreshed=1`);
 }
 
 /* ---------- companies ---------- */

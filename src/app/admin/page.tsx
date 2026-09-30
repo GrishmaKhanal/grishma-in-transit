@@ -7,9 +7,9 @@ import { ADMIN } from "@/lib/admin-path";
 import { LoginForm } from "./_components/forms";
 import { StatusPill, title } from "./_components/ui";
 import { DbNotice } from "./_nodb";
-import { importStarterContent } from "./actions";
+import { importStarterContent, refreshPublicPages } from "./actions";
 
-export default async function AdminHome() {
+export default async function AdminHome({ searchParams }: { searchParams: Promise<{ refreshed?: string }> }) {
   if (!(await isAdmin())) return <LoginForm />;
 
   const stats = hasDb
@@ -96,6 +96,11 @@ export default async function AdminHome() {
         Saving publishes instantly: the page, lists, <a className="underline" href="/sitemap.xml">sitemap.xml</a> and{" "}
         <a className="underline" href="/blog/rss.xml">rss.xml</a> are regenerated on the next request.
       </p>
+      <form action={refreshPublicPages} className="mt-3 flex flex-wrap items-center gap-3 text-sm text-ink-5">
+        <span>Changed the database outside the admin?</span>
+        <button className="cursor-pointer border border-rule px-3 py-1 text-ink hover:border-ink">Refresh public pages</button>
+        {(await searchParams).refreshed && <span className="text-green-800">Done. Public pages rebuild on their next visit.</span>}
+      </form>
     </>
   );
 }

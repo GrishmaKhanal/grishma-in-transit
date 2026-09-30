@@ -35,6 +35,7 @@ npm run db:generate    # schema.ts changed → write a new SQL migration into dr
 npm run db:migrate     # apply pending migrations to $DATABASE_URL
 npm run db:check       # sanity-check the migration history
 npm run db:seed        # insert starter content (idempotent)
+npm run db:sample      # local only: add sample posts, drafts, companies, projects, messages (-- --remove to undo)
 npm run db:studio      # browse the DB in a web UI
 git push               # host builds; with RUN_MIGRATIONS=true (production) the build migrates first
 ```

@@ -64,6 +64,22 @@ SITE_URL=http://localhost:3000
 
 That makes it safe to run against production once after the first deploy. It never overwrites edits you made in the admin.
 
+## Sample data (local only)
+
+`npm run db:sample` (`scripts/sample-data.ts`) adds test content on top of the seed, so every admin screen has something to show:
+
+| Table | Adds |
+|---|---|
+| `posts` | 4 published (3 blog posts with code, a table and an image; 1 note), 2 drafts |
+| `companies` | 1 published, 1 hidden |
+| `projects` | 2 under the published company, 1 under the hidden one, 2 in Tinkering (1 hidden) |
+| `messages` | 5, read and unread, one very long |
+| `media` | 1 image, used as a post cover and inline |
+
+Sample rows use ids from 9001 (the image id starts with `sample`), so rerunning replaces them and `npm run db:sample -- --remove` deletes only them. The script refuses any `DATABASE_URL` that isn't `localhost` or `127.0.0.1`.
+
+It writes straight to the database, which doesn't expire the page cache. Afterwards click **Refresh public pages** on the admin dashboard, or the public pages keep showing old content for up to an hour.
+
 ## Reset
 
 Wipes everything local and rebuilds from migrations and seed.
