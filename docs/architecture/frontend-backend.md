@@ -56,4 +56,4 @@ These receive data as **props** from server components and submit through **Serv
 - A new read for a public page goes in `src/lib/data.ts`, wrapped in `cached(...)` with the right tag.
 - A new write goes in a Server Action. Call `requireAdmin()` first (the proxy alone isn't enough, as the Next docs warn), then `updateTag` for every tag it affects.
 - Never put a secret in a `NEXT_PUBLIC_*` variable or pass it as a prop to a client component.
-- A form whose action can return an error submits via `onSubmit` + `startTransition`, not `action=`, or React 19 clears what the user typed. See [admin-editor.md](admin-editor.md).
+- A form whose action can return an error submits via `onSubmit` + `startTransition` (keeping `action=` for pre-hydration POSTs), or React 19 clears what the user typed. See [admin-editor.md](admin-editor.md).

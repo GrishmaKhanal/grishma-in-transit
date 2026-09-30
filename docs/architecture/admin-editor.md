@@ -6,7 +6,7 @@ Every admin edit form (post, company, project, site content) is wrapped in `Save
 
 | Behaviour | How |
 |---|---|
-| A failed save keeps what you typed | Submits from `onSubmit` + `startTransition` instead of `<form action>`. See the gotcha below. |
+| A failed save keeps what you typed | Submits from `onSubmit` + `startTransition`. See the gotcha below. |
 | Sticky save bar | Save button, status and page actions (e.g. "View live") stay pinned to the bottom of the screen. |
 | Status | "Unsaved changes" once you edit, "Saved at 10:42" after a save, the error message if it failed, "Created" after a first save. |
 | Ctrl+S / Cmd+S | Saves the form on the page. |
@@ -18,17 +18,19 @@ Dirty tracking counts `input` events on the form. Controls that change the form 
 
 `<form action={fn}>` resets every uncontrolled field once the action finishes, **even when it returns an error**. Before this was changed, a wrong password cleared the username, a duplicate slug wiped the whole draft, and a contact-form validation error wiped the visitor's message.
 
-Rule: any form whose action can return an error submits like this instead:
+Rule: any form whose action can return an error submits from `onSubmit`, and keeps `action=` as well:
 
 ```tsx
-<form onSubmit={(e) => {
+<form action={action} onSubmit={(e) => {
   e.preventDefault();
   const fd = new FormData(e.currentTarget);
   startTransition(() => action(fd));
 }}>
 ```
 
-The login form, the public contact form and `SaveForm` all follow it. Forms that only ever succeed (delete, mark read) can keep `action=`.
+After hydration, `onSubmit` runs and `preventDefault()` stops React from running the action itself, so there is no reset. Before hydration (slow JS), `action=` makes the browser POST to the server action. Without it the browser falls back to a GET and puts every field, the password included, in the URL.
+
+The login and contact forms follow this. `SaveForm` can't use `action=` (its action runs in the browser), so it sets `method="post"` for the same reason. Forms that only ever succeed (delete, mark read) can keep plain `action=`.
 
 ## Server side of the same promise
 
