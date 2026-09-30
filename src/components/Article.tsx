@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getPublishedPost, getPublishedPosts, getSettings, type PostKind } from "@/lib/data";
 import { readingTime, renderMarkdown } from "@/lib/markdown";
 import { SITE_URL, abs, postPath } from "@/lib/site";
+import { CopyCode } from "./CopyCode";
 import { JsonLd } from "./JsonLd";
 import { postEyebrow } from "@/lib/format";
 
@@ -97,6 +98,7 @@ export async function Article({ kind, slug }: { kind: PostKind; slug: string }) 
           {p.tags.length > 0 && <span>{p.tags.join(" · ")}</span>}
         </div>
         <div className="article pt-9" dangerouslySetInnerHTML={{ __html: html }} />
+        <CopyCode />
         <div className="mt-16 grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-6 border-t border-ink pt-6 pb-14">
           <div>
             <div className="eyebrow text-ink-5">Written by</div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useSyncExternalStore } from "react";
+import { startTransition, useActionState, useSyncExternalStore } from "react";
 import { sendMessage } from "@/app/actions/contact";
 
 const field =
@@ -9,7 +9,16 @@ const field =
 export function ContactForm() {
   const [state, action, pending] = useActionState(sendMessage, undefined);
   return (
-    <form action={action} className="flex flex-col gap-[22px] bg-panel p-[clamp(24px,4vw,40px)]">
+    // onSubmit rather than action: React resets an action form, which would wipe a visitor's
+    // message when validation fails.
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        startTransition(() => action(fd));
+      }}
+      className="flex flex-col gap-[22px] bg-panel p-[clamp(24px,4vw,40px)]"
+    >
       <div className="eyebrow text-ink-4">Write a note</div>
       {state?.ok ? (
         <p className="m-0 font-serif text-[19px] leading-[1.55]">Thanks - your note landed in my inbox. I&apos;ll reply by email.</p>
@@ -25,12 +34,12 @@ export function ContactForm() {
           </label>
           <label className="flex flex-col gap-1.5 text-[13px] text-ink-4">
             Message
-            <textarea name="body" rows={5} required maxLength={5000} className={`${field} resize-y leading-[1.5] font-normal`} />
+            <textarea name="body" rows={5} required minLength={5} maxLength={5000} className={`${field} resize-y leading-[1.5] font-normal`} />
           </label>
           {/* honeypot: hidden from people, filled by bots */}
           <input name="company" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className={`font-serif text-sm ${state?.error ? "text-accent" : "text-ink-5"}`}>
+            <span aria-live="polite" className={`font-serif text-sm ${state?.error ? "text-accent" : "text-ink-5"}`}>
               {state?.error ?? "Goes straight to my inbox."}
             </span>
             <button disabled={pending} className="cursor-pointer border-0 bg-ink px-[22px] py-[13px] text-sm font-medium text-paper disabled:opacity-60">

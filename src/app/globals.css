@@ -80,3 +80,8 @@ details > summary::-webkit-details-marker { display: none; }
 .article table { width: 100%; border-collapse: collapse; font-size: 16px; }
 .article th, .article td { border-bottom: 1px solid var(--color-rule); padding: 8px; text-align: left; }
 .article strong { font-weight: 700; }
+.article .code-wrap { position: relative; }
+.copy-code { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border: 1px solid var(--color-night-rule); border-radius: 3px; background: var(--color-night-card); color: var(--color-night-2); font: 500 11px var(--font-mono); cursor: pointer; opacity: 0; transition: opacity .15s; }
+.copy-code:hover { color: var(--color-night-1); }
+.code-wrap:hover .copy-code, .copy-code:focus-visible { opacity: 1; }
+@media (hover: none) { .copy-code { opacity: 1; } }
