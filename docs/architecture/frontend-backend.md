@@ -30,7 +30,8 @@ Everything lives in one repo and deploys together, but each file runs in exactly
 Only files that start with `"use client"`:
 
 - `src/app/(site)/contact/form.tsx`: the contact form's pending and error state
-- `src/app/admin/_components/{nav,forms,fields,roles}.tsx`: admin form interactivity
+- `src/app/admin/_components/{nav,forms,fields,roles,rows,save}.tsx`: admin form interactivity
+- `src/components/CopyCode.tsx`: copy buttons on article code blocks
 
 These receive data as **props** from server components and submit through **Server Actions**. They never import `@/db`, `@/lib/data` or `@/lib/auth`, and `server-only` turns any such import into a build error.
 
@@ -55,3 +56,4 @@ These receive data as **props** from server components and submit through **Serv
 - A new read for a public page goes in `src/lib/data.ts`, wrapped in `cached(...)` with the right tag.
 - A new write goes in a Server Action. Call `requireAdmin()` first (the proxy alone isn't enough, as the Next docs warn), then `updateTag` for every tag it affects.
 - Never put a secret in a `NEXT_PUBLIC_*` variable or pass it as a prop to a client component.
+- A form whose action can return an error submits via `onSubmit` + `startTransition`, not `action=`, or React 19 clears what the user typed. See [admin-editor.md](admin-editor.md).
