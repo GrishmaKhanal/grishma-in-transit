@@ -1,13 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import type { Company, KV, Post, Project, SiteSettings } from "@/db/schema";
+import { slugify } from "@/lib/slug";
 import { login, saveCompany, savePost, saveProject, saveSettings } from "../actions";
 import { RolesEditor } from "./roles";
-import { Field, ImageField, MarkdownField, Status, input } from "./fields";
+import { RowsEditor } from "./rows";
+import { SaveForm, btn } from "./save";
+import { CountedField, Field, ImageField, MarkdownField, input } from "./fields";
 
-const btn =
-  "cursor-pointer bg-ink px-5 py-2.5 text-sm font-medium text-paper disabled:opacity-50";
+const pathFor = (kind: string, slug: string) => `/${kind === "note" ? "notes" : "blog"}/${slug}`;
 
 // datetime-local wants "YYYY-MM-DDTHH:mm" (UTC here, matching the server).
 const dt = (d?: Date | null) => (d ? new Date(d).toISOString().slice(0, 16) : "");
@@ -23,7 +25,15 @@ export function LoginForm() {
           <div className="font-mono text-[11px] text-ink-4">Sign in to edit the site</div>
         </div>
       </div>
-      <form action={action} className="space-y-5 border border-t-0 border-ink bg-panel p-6">
+      {/* onSubmit rather than action: React resets an action form, which would clear the username on a typo. */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const fd = new FormData(e.currentTarget);
+          startTransition(() => action(fd));
+        }}
+        className="space-y-5 border border-t-0 border-ink bg-panel p-6"
+      >
         <label className="flex flex-col gap-1.5 text-[13px] text-ink-4">
           Username
           <input
@@ -48,7 +58,9 @@ export function LoginForm() {
           />
         </label>
         <div className="flex items-center justify-between gap-3">
-          <span className="font-serif text-sm text-accent">{state?.error}</span>
+          <span aria-live="polite" className="font-serif text-sm text-accent">
+            {state?.error}
+          </span>
           <button className={btn} disabled={pending}>
             {pending ? "Checking…" : "Sign in →"}
           </button>
@@ -58,73 +70,136 @@ export function LoginForm() {
   );
 }
 
-export function PostForm({ post }: { post?: Post }) {
-  const [state, action, pending] = useActionState(savePost, undefined);
+export function PostForm({ post, created }: { post?: Post; created?: boolean }) {
+  const [title, setTitle] = useState(post?.title ?? "");
+  const [kind, setKind] = useState(post?.kind ?? "blog");
+  const [published, setPublished] = useState(post?.published ?? false);
+  // A new post's slug follows the title until it's edited by hand; a saved post keeps its own.
+  const [slug, setSlug] = useState(post?.slug ?? "");
+  const [slugEdited, setSlugEdited] = useState(Boolean(post));
+  const shownSlug = slugEdited ? slug : slugify(title);
+  const path = pathFor(kind, shownSlug);
+  const livePath = post?.published ? pathFor(post.kind, post.slug) : null;
+
   return (
-    <form action={action} className="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <SaveForm
+      action={savePost}
+      created={created}
+      className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"
+      barClassName="lg:col-span-2"
+      extra={
+        livePath && (
+          <a href={livePath} target="_blank" className="underline">
+            View live ↗
+          </a>
+        )
+      }
+    >
       {post && <input type="hidden" name="id" value={post.id} />}
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4">
         <Field label="Title">
-          <input name="title" defaultValue={post?.title} required className={`${input} text-lg`} />
+          <input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required className={`${input} text-lg`} />
         </Field>
         <MarkdownField name="content" defaultValue={post?.content} />
       </div>
       <aside className="space-y-4">
-        <div className="flex items-center gap-3">
-          <button className={btn} disabled={pending}>
-            {pending ? "Saving…" : "Save"}
-          </button>
-          <Status state={state} />
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="published" defaultChecked={post?.published} /> Published
+        <label className="flex items-start gap-2.5 border border-rule bg-[#faf9f6] p-3 text-sm">
+          <input type="checkbox" name="published" checked={published} onChange={(e) => setPublished(e.target.checked)} className="mt-0.5" />
+          <span>
+            <span className="font-medium">{published ? "Published" : "Draft"}</span>
+            <span className="block text-xs text-ink-5">
+              {published ? `Public at ${path} once saved.` : "Only visible here. Tick to publish on save."}
+            </span>
+          </span>
         </label>
         <Field label="Type">
-          <select name="kind" defaultValue={post?.kind ?? "blog"} className={input}>
+          <select name="kind" value={kind} onChange={(e) => setKind(e.target.value as Post["kind"])} className={input}>
             <option value="blog">Blog article (/blog/…)</option>
             <option value="note">Note (/notes/…)</option>
           </select>
         </Field>
+        <Field
+          label="Slug"
+          hint={
+            livePath && livePath !== path ? (
+              <span className="text-accent">This post is live. Changing its URL breaks existing links to {livePath}.</span>
+            ) : (
+              <>
+                URL: <span className="font-mono">{path}</span>
+              </>
+            )
+          }
+        >
+          <input
+            name="slug"
+            value={shownSlug}
+            onChange={(e) => {
+              setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-"));
+              setSlugEdited(true);
+            }}
+            // Emptied by hand: go back to following the title rather than saving a blank.
+            onBlur={() => {
+              if (!slug) setSlugEdited(false);
+            }}
+            className={`${input} font-mono`}
+            pattern="[a-z0-9]+(-[a-z0-9]+)*"
+            title="Lowercase letters, numbers and single dashes"
+          />
+        </Field>
         <Field label="Number" hint='Shown as "No. 001". Optional.'>
           <input name="number" type="number" min={0} defaultValue={post?.number ?? ""} className={input} />
         </Field>
-        <Field label="Slug" hint="The URL. Leave empty to generate from the title. Avoid changing after publishing.">
-          <input name="slug" defaultValue={post?.slug} className={`${input} font-mono`} pattern="[a-z0-9]+(-[a-z0-9]+)*" />
-        </Field>
-        <Field label="Publish date (UTC)">
+        <Field label="Publish date (UTC)" hint="Leave empty to use the moment you publish.">
           <input type="datetime-local" name="publishedAt" defaultValue={dt(post?.publishedAt)} className={input} />
         </Field>
-        <Field label="Tags" hint="Comma separated">
+        <Field label="Tags" hint="Comma separated. The first one shows in lists.">
           <input name="tags" defaultValue={post?.tags.join(", ")} className={input} />
         </Field>
-        <Field label="Dek / excerpt" hint="The line under the title in lists and on the post; fallback meta description.">
-          <textarea name="excerpt" rows={3} defaultValue={post?.excerpt ?? ""} className={input} />
-        </Field>
+        <CountedField
+          name="excerpt"
+          label="Dek / excerpt"
+          rows={3}
+          max={160}
+          defaultValue={post?.excerpt ?? ""}
+          hint="The line under the title in lists and on the post; fallback meta description."
+        />
         <ImageField name="coverImage" label="Cover / social image" defaultValue={post?.coverImage} />
         <details className="space-y-3">
-          <summary className="cursor-pointer text-sm font-medium">SEO overrides</summary>
-          <Field label="SEO title">
-            <input name="seoTitle" defaultValue={post?.seoTitle ?? ""} className={input} />
-          </Field>
-          <Field label="Meta description" hint="~150 characters">
-            <textarea name="seoDescription" rows={3} defaultValue={post?.seoDescription ?? ""} className={input} />
-          </Field>
+          <summary className="cursor-pointer text-sm font-medium">SEO overrides ▾</summary>
+          <CountedField name="seoTitle" label="SEO title" max={60} defaultValue={post?.seoTitle ?? ""} hint="Defaults to the title." />
+          <CountedField
+            name="seoDescription"
+            label="Meta description"
+            rows={3}
+            max={155}
+            defaultValue={post?.seoDescription ?? ""}
+            hint="Defaults to the dek."
+          />
         </details>
       </aside>
-    </form>
+    </SaveForm>
   );
 }
 
-export function ProjectForm({ project, companies }: { project?: Project; companies: Pick<Company, "id" | "name">[] }) {
-  const [state, action, pending] = useActionState(saveProject, undefined);
+export function ProjectForm({
+  project,
+  companies,
+  created,
+  companyId,
+}: {
+  project?: Project;
+  companies: Pick<Company, "id" | "name">[];
+  created?: boolean;
+  companyId?: number;
+}) {
   return (
-    <form action={action} className="max-w-2xl space-y-4">
+    <SaveForm action={saveProject} created={created} className="max-w-2xl space-y-4">
       {project && <input type="hidden" name="id" value={project.id} />}
       <Field label="Name">
         <input name="title" defaultValue={project?.title} required className={`${input} text-lg`} />
       </Field>
       <Field label="Where it appears">
-        <select name="companyId" defaultValue={project?.companyId ?? ""} className={input}>
+        <select name="companyId" defaultValue={project?.companyId ?? companyId ?? ""} className={input}>
           <option value="">Tinkering (personal / university)</option>
           {companies.map((c) => (
             <option key={c.id} value={c.id}>
@@ -141,13 +216,13 @@ export function ProjectForm({ project, companies }: { project?: Project; compani
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Link URL" hint="Leave empty to show “Internal” for work projects.">
-          <input name="liveUrl" type="url" defaultValue={project?.liveUrl ?? ""} className={input} />
+          <input name="liveUrl" type="url" defaultValue={project?.liveUrl ?? ""} placeholder="https://" className={input} />
         </Field>
         <Field label="Link label" hint="e.g. Product, Live, Demo">
           <input name="linkLabel" defaultValue={project?.linkLabel ?? ""} className={input} />
         </Field>
         <Field label="Code URL" hint="Shows a “Code ↗” link.">
-          <input name="repoUrl" type="url" defaultValue={project?.repoUrl ?? ""} className={input} />
+          <input name="repoUrl" type="url" defaultValue={project?.repoUrl ?? ""} placeholder="https://" className={input} />
         </Field>
         <Field label="Status" hint="e.g. Not deployed">
           <input name="status" defaultValue={project?.status ?? ""} className={input} />
@@ -159,20 +234,13 @@ export function ProjectForm({ project, companies }: { project?: Project; compani
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="published" defaultChecked={project?.published ?? true} /> Published
       </label>
-      <div className="flex items-center gap-3">
-        <button className={btn} disabled={pending}>
-          {pending ? "Saving…" : "Save"}
-        </button>
-        <Status state={state} />
-      </div>
-    </form>
+    </SaveForm>
   );
 }
 
-export function CompanyForm({ company }: { company?: Company }) {
-  const [state, action, pending] = useActionState(saveCompany, undefined);
+export function CompanyForm({ company, created }: { company?: Company; created?: boolean }) {
   return (
-    <form action={action} className="max-w-3xl space-y-4">
+    <SaveForm action={saveCompany} created={created} className="max-w-3xl space-y-4">
       {company && <input type="hidden" name="id" value={company.id} />}
       <Field label="Company">
         <input name="name" defaultValue={company?.name} required className={`${input} text-lg`} />
@@ -185,7 +253,7 @@ export function CompanyForm({ company }: { company?: Company }) {
           <input name="location" defaultValue={company?.location} className={input} />
         </Field>
         <Field label="Website">
-          <input name="siteUrl" type="url" defaultValue={company?.siteUrl ?? ""} className={input} />
+          <input name="siteUrl" type="url" defaultValue={company?.siteUrl ?? ""} placeholder="https://" className={input} />
         </Field>
         <Field label="Website label" hint="e.g. odinmortgage.com">
           <input name="siteLabel" defaultValue={company?.siteLabel ?? ""} className={input} />
@@ -206,98 +274,130 @@ export function CompanyForm({ company }: { company?: Company }) {
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="published" defaultChecked={company?.published ?? true} /> Published
       </label>
-      <div className="flex items-center gap-3">
-        <button className={btn} disabled={pending}>
-          {pending ? "Saving…" : "Save"}
-        </button>
-        <Status state={state} />
-      </div>
-    </form>
+    </SaveForm>
   );
 }
 
-const kv = (xs: KV[]) => xs.map((x) => `${x.k} | ${x.v}`).join("\n");
+const kv = (xs: KV[]) => xs.map((x) => [x.k, x.v]);
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+const SECTIONS = [
+  ["identity", "Identity", "/"],
+  ["contact", "Contact & socials", "/contact"],
+  ["home", "Home page", "/"],
+  ["intros", "Section intros", "/blog"],
+  ["about", "About page", "/about"],
+] as const;
+
+function Section({ id, children }: { id: (typeof SECTIONS)[number][0]; children: React.ReactNode }) {
+  const [, title, href] = SECTIONS.find((s) => s[0] === id)!;
   return (
-    <fieldset className="space-y-4 border border-rule bg-[#faf9f6] p-5">
+    <fieldset id={id} className="scroll-mt-6 space-y-4 border border-rule bg-[#faf9f6] p-5">
       <legend className="px-1 text-sm font-semibold">{title}</legend>
+      <a href={href} target="_blank" className="float-right -mt-2 text-xs text-ink-5 underline">
+        View {href} ↗
+      </a>
       {children}
     </fieldset>
   );
 }
 
 export function SettingsForm({ s }: { s: SiteSettings }) {
-  const [state, action, pending] = useActionState(saveSettings, undefined);
   const t = (name: keyof SiteSettings, label: string, hint?: string) => (
     <Field label={label} hint={hint}>
       <input name={name} defaultValue={String(s[name] ?? "")} className={input} />
     </Field>
   );
-  const area = (name: string, label: string, value: string, rows = 3, hint?: string, mono = false) => (
+  const area = (name: string, label: string, value: string, rows = 3, hint?: string) => (
     <Field label={label} hint={hint}>
-      <textarea name={name} rows={rows} defaultValue={value} className={`${input} ${mono ? "font-mono" : ""}`} />
+      <textarea name={name} rows={rows} defaultValue={value} className={input} />
     </Field>
   );
   return (
-    <form action={action} className="max-w-3xl space-y-6">
-      <Section title="Identity">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {t("name", "Name")}
-          {t("monogram", "Monogram", "Header block, e.g. GK")}
-          {t("role", "Role", "e.g. Software Engineer")}
-          {t("location", "City")}
-          {t("country", "Country")}
-          {t("countryCode", "Country code", "e.g. NP (for search engines)")}
-          {t("worksFor", "Current employer", "For search engines")}
-          {t("alumniOf", "University", "For search engines")}
-        </div>
-        {area("seoDescription", "Default meta description", s.seoDescription, 3, "~155 characters, used by search engines")}
-      </Section>
+    <div className="grid gap-8 lg:grid-cols-[160px_minmax(0,1fr)]">
+      <nav aria-label="Sections" className="flex flex-wrap gap-2 lg:sticky lg:top-6 lg:flex-col lg:self-start">
+        {SECTIONS.map(([id, title]) => (
+          <a key={id} href={`#${id}`} className="border border-rule px-3 py-1.5 text-sm hover:border-ink lg:border-0 lg:border-l-2 lg:px-3 lg:py-1">
+            {title}
+          </a>
+        ))}
+      </nav>
+      <SaveForm action={saveSettings} label="Save settings" className="max-w-3xl min-w-0 space-y-6">
+        <Section id="identity">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {t("name", "Name")}
+            {t("monogram", "Monogram", "Header block, e.g. GK")}
+            {t("role", "Role", "e.g. Software Engineer")}
+            {t("location", "City")}
+            {t("country", "Country")}
+            {t("countryCode", "Country code", "e.g. NP (for search engines)")}
+            {t("worksFor", "Current employer", "For search engines")}
+            {t("alumniOf", "University", "For search engines")}
+          </div>
+          <CountedField name="seoDescription" label="Default meta description" rows={3} max={155} defaultValue={s.seoDescription} hint="Used by search engines when a page has none of its own." />
+        </Section>
 
-      <Section title="Contact & socials">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {t("email", "Public email")}
-          {t("timezone", "Time zone", "IANA name, e.g. Asia/Kathmandu")}
-          {t("tzLabel", "Time zone label", "e.g. NPT (UTC+5:45)")}
-        </div>
-        {area("socials", "Social links", s.socials.map((x) => `${x.label} | ${x.handle} | ${x.url}`).join("\n"), 4, "One per line: Label | handle | https://url", true)}
-        {t("contactHeading", "Contact page heading")}
-        {area("contactIntro", "Contact page intro", s.contactIntro)}
-      </Section>
+        <Section id="contact">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {t("email", "Public email")}
+            {t("timezone", "Time zone", "IANA name, e.g. Asia/Kathmandu")}
+            {t("tzLabel", "Time zone label", "e.g. NPT (UTC+5:45)")}
+          </div>
+          <RowsEditor
+            name="socials"
+            label="Social links"
+            addLabel="Add link"
+            cols={[{ placeholder: "Label, e.g. GitHub" }, { placeholder: "Handle, e.g. @you" }, { placeholder: "https://…", type: "url", wide: true }]}
+            initial={s.socials.map((x) => [x.label, x.handle, x.url])}
+            hint="Shown in the footer, home hero, about and contact pages."
+          />
+          {t("contactHeading", "Contact page heading")}
+          {area("contactIntro", "Contact page intro", s.contactIntro)}
+        </Section>
 
-      <Section title="Home page">
-        {t("heroEyebrow", "Eyebrow")}
-        {area("heroHeadline", "Headline", s.heroHeadline, 2)}
-        {area("heroIntro", "Intro", s.heroIntro, 3)}
-        {area("langs", "“Mostly in” chips", s.langs.join("\n"), 3, "One per line")}
-        {t("homeWorkLabel", "Work band label", "e.g. Work, 2024 - now")}
-        {area("homeOffClock", "Off the clock (short)", s.homeOffClock, 3)}
-      </Section>
+        <Section id="home">
+          {t("heroEyebrow", "Eyebrow")}
+          {area("heroHeadline", "Headline", s.heroHeadline, 2)}
+          {area("heroIntro", "Intro", s.heroIntro, 3)}
+          {area("langs", "“Mostly in” chips", s.langs.join("\n"), 3, "One per line")}
+          {t("homeWorkLabel", "Work band label", "e.g. Work, 2024 - now")}
+          {area("homeOffClock", "Off the clock (short)", s.homeOffClock, 3)}
+        </Section>
 
-      <Section title="Section intros">
-        {area("writingIntro", "Writing page", s.writingIntro)}
-        {area("workIntro", "Work page", s.workIntro)}
-        {t("tinkeringIntro", "Tinkering section")}
-      </Section>
+        <Section id="intros">
+          {area("writingIntro", "Writing page", s.writingIntro)}
+          {area("workIntro", "Work page", s.workIntro)}
+          {t("tinkeringIntro", "Tinkering section")}
+        </Section>
 
-      <Section title="About page">
-        {t("aboutHeading", "Heading")}
-        {area("aboutBody", "Body (Markdown)", s.aboutBody, 10)}
-        <ImageField name="aboutPhoto" label="Portrait (4:5)" defaultValue={s.aboutPhoto} />
-        {t("aboutPhotoCaption", "Photo caption")}
-        {area("skills", "What I reach for", kv(s.skills), 5, "One per line: Group | items", true)}
-        {area("education", "Education", kv(s.education), 3, "One per line: Qualification | School · year", true)}
-        {area("certificates", "Certificates", s.certificates.join("\n"), 3, "One per line")}
-        {area("offClock", "Off the clock", kv(s.offClock), 4, "One per line: Title | one-liner", true)}
-      </Section>
-
-      <div className="sticky bottom-0 flex items-center gap-3 border-t border-rule bg-paper py-3">
-        <button className={btn} disabled={pending}>
-          {pending ? "Saving…" : "Save settings"}
-        </button>
-        <Status state={state} />
-      </div>
-    </form>
+        <Section id="about">
+          {t("aboutHeading", "Heading")}
+          {area("aboutBody", "Body (Markdown)", s.aboutBody, 10)}
+          <ImageField name="aboutPhoto" label="Portrait (4:5)" defaultValue={s.aboutPhoto} />
+          {t("aboutPhotoCaption", "Photo caption")}
+          <RowsEditor
+            name="skills"
+            label="What I reach for"
+            addLabel="Add group"
+            cols={[{ placeholder: "Group, e.g. Languages" }, { placeholder: "Items, e.g. Python, SQL", wide: true }]}
+            initial={kv(s.skills)}
+          />
+          <RowsEditor
+            name="education"
+            label="Education"
+            addLabel="Add qualification"
+            cols={[{ placeholder: "Qualification" }, { placeholder: "School · year", wide: true }]}
+            initial={kv(s.education)}
+          />
+          {area("certificates", "Certificates", s.certificates.join("\n"), 3, "One per line")}
+          <RowsEditor
+            name="offClock"
+            label="Off the clock"
+            addLabel="Add item"
+            cols={[{ placeholder: "Title, e.g. Football" }, { placeholder: "One-liner", wide: true }]}
+            initial={kv(s.offClock)}
+          />
+        </Section>
+      </SaveForm>
+    </div>
   );
 }

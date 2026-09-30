@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Role } from "@/db/schema";
 import { input } from "./fields";
+import { useMarkDirty } from "./save";
 
 type Draft = { title: string; period: string; duration: string; points: string; stack: string };
 
@@ -17,7 +18,13 @@ const fromDraft = (d: Draft): Role => ({
 
 /** Repeating role editor; serialises to a hidden `roles` JSON field. */
 export function RolesEditor({ initial }: { initial: Role[] }) {
-  const [roles, setRoles] = useState<Draft[]>(initial.map(toDraft));
+  const markDirty = useMarkDirty();
+  const [roles, setRolesState] = useState<Draft[]>(initial.map(toDraft));
+  // Typing already marks the form dirty; add, remove and reorder are clicks, so flag those here.
+  const setRoles: typeof setRolesState = (next) => {
+    setRolesState(next);
+    markDirty();
+  };
   const set = (i: number, k: keyof Draft, v: string) => setRoles((rs) => rs.map((r, j) => (j === i ? { ...r, [k]: v } : r)));
   const move = (i: number, d: -1 | 1) =>
     setRoles((rs) => {
