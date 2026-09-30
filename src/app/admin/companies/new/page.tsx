@@ -1,4 +1,6 @@
+import { ADMIN } from "@/lib/admin-path";
 import { CompanyForm } from "../../_components/forms";
+import { PageHeader } from "../../_components/ui";
 import { guard } from "../../_lib";
 import { DbNotice } from "../../_nodb";
 
@@ -7,7 +9,7 @@ export default async function NewCompany() {
   return (
     <>
       <DbNotice />
-      <h1 className="mb-6 font-serif text-[40px] leading-none font-bold tracking-[-.02em]">New company</h1>
+      <PageHeader back={["Companies", `${ADMIN}/companies`]}>New company</PageHeader>
       <CompanyForm />
     </>
   );

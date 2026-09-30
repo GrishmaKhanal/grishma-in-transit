@@ -24,14 +24,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="min-h-screen bg-paper text-ink">
       {authed && (
         <header className="border-b border-ink">
-          <div className="flex flex-wrap">
+          <div className="flex flex-wrap xl:flex-nowrap">
             <Link
               href={ADMIN}
-              className="flex min-h-[64px] w-[72px] flex-none items-center justify-center bg-ink font-serif text-lg font-extrabold text-paper hover:text-paper"
+              className="flex min-h-[56px] w-[64px] flex-none items-center justify-center bg-ink font-serif text-lg font-extrabold text-paper hover:text-paper xl:min-h-[64px] xl:w-[72px]"
             >
               GK
             </Link>
-            <div className="flex flex-col justify-center px-5 py-2">
+            <div className="flex flex-1 flex-col justify-center px-4 py-2 xl:flex-none xl:px-5">
               <span className="font-serif text-lg font-extrabold tracking-[-.015em]">Admin</span>
               <span className="font-mono text-[11px] text-ink-4">Content manager</span>
             </div>
@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </header>
       )}
-      <main className="mx-auto max-w-6xl px-[clamp(16px,4vw,40px)] py-10">{children}</main>
+      <main className="mx-auto max-w-6xl px-[clamp(16px,4vw,40px)] py-6 sm:py-10">{children}</main>
     </div>
   );
 }

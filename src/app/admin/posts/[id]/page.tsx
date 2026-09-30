@@ -2,24 +2,27 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { db, hasDb } from "@/db";
 import { posts } from "@/db/schema";
+import { ADMIN } from "@/lib/admin-path";
 import { deletePost } from "../../actions";
 import { ConfirmDelete } from "../../_components/fields";
 import { PostForm } from "../../_components/forms";
+import { PageHeader } from "../../_components/ui";
 import { guard } from "../../_lib";
 
-export default async function EditPost({ params }: { params: Promise<{ id: string }> }) {
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> };
+
+export default async function EditPost({ params, searchParams }: Props) {
   await guard();
-  const { id } = await params;
+  const [{ id }, { created }] = await Promise.all([params, searchParams]);
   if (!hasDb) notFound();
   const post = await db.query.posts.findFirst({ where: eq(posts.id, Number(id)) });
   if (!post) notFound();
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-serif text-[40px] leading-none font-bold tracking-[-.02em]">Edit post</h1>
-        <ConfirmDelete action={deletePost} id={post.id} />
-      </div>
-      <PostForm post={post} />
+      <PageHeader back={["Posts", `${ADMIN}/posts`]} actions={<ConfirmDelete action={deletePost} id={post.id} />}>
+        Edit post
+      </PageHeader>
+      <PostForm post={post} created={created === "1"} />
     </>
   );
 }
