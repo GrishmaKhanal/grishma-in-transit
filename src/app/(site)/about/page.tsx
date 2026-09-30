@@ -24,21 +24,24 @@ export default async function About() {
   return (
     <div className="wrap">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] items-start gap-x-16 gap-y-10 pt-[clamp(56px,8vw,88px)] pb-16">
-        <div className="max-w-[420px]">
-          {s.aboutPhoto && (
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-panel">
-              <Image
-                src={s.aboutPhoto}
-                alt={`Portrait of ${s.name}`}
-                fill
-                sizes="(max-width: 720px) 100vw, 420px"
-                className="object-cover object-[50%_10%]"
-                preload
-              />
-            </div>
-          )}
-          {s.aboutPhotoCaption && <div className="mt-2.5 font-serif text-sm text-ink-5">{s.aboutPhotoCaption}</div>}
-        </div>
+        {/* Without a portrait the column is left out, so the text takes the full width. */}
+        {(s.aboutPhoto || s.aboutPhotoCaption) && (
+          <div className="max-w-[420px]">
+            {s.aboutPhoto && (
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-panel">
+                <Image
+                  src={s.aboutPhoto}
+                  alt={`Portrait of ${s.name}`}
+                  fill
+                  sizes="(max-width: 720px) 100vw, 420px"
+                  className="object-cover object-[50%_10%]"
+                  preload
+                />
+              </div>
+            )}
+            {s.aboutPhotoCaption && <div className="mt-2.5 font-serif text-sm text-ink-5">{s.aboutPhotoCaption}</div>}
+          </div>
+        )}
         <div className="min-w-0">
           <h1 className="m-0 font-serif text-[clamp(48px,6vw,72px)] leading-[1.02] font-bold tracking-[-.025em]">{s.aboutHeading}</h1>
           <div

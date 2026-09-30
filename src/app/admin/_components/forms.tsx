@@ -255,7 +255,7 @@ export function CompanyForm({ company, created }: { company?: Company; created?:
         <Field label="Website">
           <input name="siteUrl" type="url" defaultValue={company?.siteUrl ?? ""} placeholder="https://" className={input} />
         </Field>
-        <Field label="Website label" hint="e.g. odinmortgage.com">
+        <Field label="Website label" hint="e.g. example.com">
           <input name="siteLabel" defaultValue={company?.siteLabel ?? ""} className={input} />
         </Field>
       </div>

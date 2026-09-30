@@ -57,7 +57,7 @@ SITE_URL=http://localhost:3000
 
 ## Seeding
 
-`npm run db:seed` (`scripts/seed.ts`) inserts the starter content from `src/content/seed.ts`. It's idempotent:
+`npm run db:seed` (`scripts/seed.ts`) inserts the starter content from `src/content/seed.ts`. That content is deliberately generic (made-up companies and projects, no photo, placeholder email), because the repo is public. Real content lives only in the database and is edited in the admin. It's idempotent:
 
 - `settings` and `posts`: existing keys and slugs are skipped
 - `companies` and `projects`: only seeded if `companies` is empty
