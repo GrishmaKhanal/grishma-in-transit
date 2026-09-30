@@ -14,7 +14,7 @@ Everything lives in one repo and deploys together, but each file runs in exactly
 | `src/app/admin/actions.ts` | All **admin writes** (Server Actions). Each one calls `requireAdmin()` and then `updateTag(...)`. |
 | `src/app/actions/contact.ts` | Public Server Action: contact form → `messages` table (zod-validated, honeypot). |
 | `src/app/sitemap.ts`, `robots.ts`, `blog/rss.xml/route.ts`, `opengraph-image.tsx` | Generated SEO endpoints. |
-| `scripts/seed.ts`, `scripts/migrate-on-deploy.ts` | CLI scripts. They're never bundled into the site. |
+| `scripts/seed.ts`, `scripts/migrate-on-deploy.ts`, `scripts/dev-db-check.ts`, `scripts/sample-data.ts` | CLI scripts. They're never bundled into the site. |
 | `drizzle/` | Generated SQL migrations. Committed to git. See [../database/migrations.md](../database/migrations.md). |
 
 ## Rendered on the server, sent as HTML (still no DB access in the browser)
@@ -30,10 +30,11 @@ Everything lives in one repo and deploys together, but each file runs in exactly
 Only files that start with `"use client"`:
 
 - `src/app/(site)/contact/form.tsx`: the contact form's pending and error state
-- `src/app/admin/_components/{nav,forms,fields,roles,rows,save}.tsx`: admin form interactivity
+- `src/components/{Nav,WritingList,HeroVideo}.tsx`: active nav item, the tag filter, the hero video's play/pause
+- `src/app/admin/_components/{nav,forms,fields,roles,rows,save}.tsx` and `src/app/admin/error.tsx`: admin form interactivity and the error screen
 - `src/components/CopyCode.tsx`: copy buttons on article code blocks
 
-These receive data as **props** from server components and submit through **Server Actions**. They never import `@/db`, `@/lib/data` or `@/lib/auth`, and `server-only` turns any such import into a build error.
+These receive data as **props** from server components and submit through **Server Actions**. They never import `@/db`, `@/lib/data` or `@/lib/auth`. `@/lib/data` and `@/lib/auth` import `server-only`, so importing them from a client file fails the build. `@/db` doesn't (scripts and tests load it under plain Node, where `server-only` throws), so that one is on you, as is `@/lib/admin-path`.
 
 ## How a request flows
 

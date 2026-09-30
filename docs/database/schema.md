@@ -9,6 +9,7 @@ Source of truth: `src/db/schema.ts`. The SQL form is in `drizzle/0000_init.sql` 
 | `projects` | Projects on `/work` | `company_id` points to `companies` (on delete: set null). A project with no company is shown under "Tinkering". |
 | `settings` | All editable site copy | A key/value table with one row, `key = 'site'`, whose `value` is a JSONB `SiteSettings`. Missing fields fall back to the seed, so adding a field needs **no migration**. |
 | `messages` | Contact-form inbox | Written by the public contact action, read in the admin. |
+| `media` | Uploaded images | `id` is 16 random url-safe characters, `data` is base64, `content_type` comes from sniffing the bytes. Served by `/media/<id>`. Added in `drizzle/0001_media.sql`. |
 
 Drizzle also creates `drizzle.__drizzle_migrations` to track which migrations have run. Don't edit it by hand, except when baselining (see [migrations.md](migrations.md#baselining-a-db-created-with-dbpush)).
 

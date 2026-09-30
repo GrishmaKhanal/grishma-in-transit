@@ -12,10 +12,10 @@ $EDITOR src/db/schema.ts
 
 # 2. generate a migration (reads the schema + drizzle/meta; doesn't touch the DB)
 npm run db:generate -- --name add_post_views
-#   → drizzle/0001_add_post_views.sql + updated drizzle/meta/*
+#   → drizzle/0002_add_post_views.sql + updated drizzle/meta/*
 
 # 3. read the SQL. Really. Look for DROP / ALTER TYPE / NOT NULL without DEFAULT.
-cat drizzle/0001_add_post_views.sql
+cat drizzle/0002_add_post_views.sql
 
 # 4. apply it locally and try the app
 npm run db:migrate

@@ -15,9 +15,10 @@ How this site is built, how data moves through it, and how to ship changes.
   - [frontend-backend.md](architecture/frontend-backend.md): the boundary inside the app, file by file
   - [caching.md](architecture/caching.md): how an admin edit shows up on the public site without a redeploy
   - [admin-and-auth.md](architecture/admin-and-auth.md): the secret admin URL (`ADMIN_PATH`), login, sessions
-  - [admin-editor.md](architecture/admin-editor.md): the shared save bar, unsaved-changes guard, and why forms don't use `action=`
+  - [admin-editor.md](architecture/admin-editor.md): the shared save bar, unsaved-changes guard, and why forms submit from `onSubmit`
+  - [http-routes.md](architecture/http-routes.md): every URL, file route, redirect and Server Action, and who can call it
 - **database/**
-  - [schema.md](database/schema.md): the five tables and what each holds
+  - [schema.md](database/schema.md): the six tables and what each holds
   - [migrations.md](database/migrations.md): the migration workflow and the rules that keep deploys safe
   - [local-dev.md](database/local-dev.md): local Postgres in podman, seeding, resetting
 - **deploy/**

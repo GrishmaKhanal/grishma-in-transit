@@ -2,7 +2,7 @@
 
 Next.js 16 site built using inspiration from Claude Design ideas, with a built-in admin. Posts, companies/roles, projects, and all page copy (home, about, contact, socials) live in Postgres and are edited in the admin at a secret URL you set with `ADMIN_PATH`.
 
-You can view the deployed site: (https://grishmakhanal.com.np)[https://grishmakhanal.com.np/]
+You can view the deployed site: [grishmakhanal.com.np](https://grishmakhanal.com.np/)
 
 **Full docs: [`docs/`](docs/README.md)** covers architecture, database and migrations, and deploying.
 
@@ -52,6 +52,6 @@ Any non-Neon `DATABASE_URL` uses node-postgres; Neon URLs use the serverless HTT
   | `/admin` | 404 |
   | unknown slug | 404 |
 
-  Local run 2026-09-26 (no database connected): the article, 404, admin noindex and sitemap rows passed. The three rows that need a database aren't tested yet.
+  Local run 2026-09-30 (local Postgres with `npm run db:sample` data): the article (200, in the sitemap), newly published post and note, edited post (`lastmod` moved to the save time), unpublished draft (absent, 404), `$ADMIN_PATH` noindex and unknown-slug rows passed. "Indexed" needs Search Console, so it's checked after deploy. The `/admin` row can't pass locally while `ADMIN_PATH=/admin`; it applies to production, where the path is secret.
 - **Feedback capture:** contact-form messages land in the admin **Messages** inbox. Search performance comes from Search Console.
 - **Review loop:** monthly, review Search Console coverage and indexing errors and update the eval table.

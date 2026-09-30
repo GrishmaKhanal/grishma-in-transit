@@ -109,6 +109,8 @@ Or, from your own terminal:
 DATABASE_URL='<read-write string>' npm run db:seed
 ```
 
+Then click **Refresh public pages** on the admin dashboard. A seed from the terminal doesn't expire the page cache.
+
 ### 6. Check it
 
 - `/`, `/blog`, `/work` show content.

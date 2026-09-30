@@ -30,7 +30,7 @@ next visitor to /blog ──▶ cache miss ─┴─▶ query DB once ──▶ 
 
 ## Gotchas
 
-- Changes made outside the admin (`npm run db:sample`, `db:studio`, raw SQL) don't expire any tag. Use **Refresh public pages** on the admin dashboard, which expires all three.
+- Changes made outside the admin (`npm run db:seed` or `db:sample` from a terminal, `db:studio`, raw SQL) don't expire any tag. Use **Refresh public pages** on the admin dashboard, which expires all three.
 - If you add a new query, give it a tag and expire that tag from every action that changes its data. A forgotten `updateTag` shows up as "I saved, but the site still shows the old version for up to an hour".
 - `unstable_cache` stores JSON, so `Date`s come back as strings. `revive()` in `data.ts` converts known date keys back. Add new timestamp column names to `DATE_KEYS`.
 - Blog slugs are prerendered at build (`generateStaticParams`). New slugs render on first request and are then cached. Don't rename a published slug, or you break inbound links and search history.
