@@ -21,7 +21,19 @@ function assertDb() {
   if (!hasDb) throw new Error("DATABASE_URL is not configured.");
 }
 
-const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
+// Drizzle wraps driver errors ("Failed query: ..."), so the Postgres code sits on `cause`.
+const pgCode = (e: unknown) =>
+  (e as { code?: string } | null)?.code ?? (e as { cause?: { code?: string } } | null)?.cause?.code;
+
+// A failed write returns a message instead of throwing, so the form keeps what was typed.
+function saveFailed(e: unknown): FormState {
+  console.error(e);
+  return { error: "Couldn't save. Your changes are still here, try again." };
+}
+
+// Browsers submit textarea line breaks as \r\n; store plain \n.
+const text = (fd: FormData, k: string) => String(fd.get(k) ?? "").replace(/\r\n?/g, "\n");
+const str = (fd: FormData, k: string) => text(fd, k).trim();
 const optional = (fd: FormData, k: string) => str(fd, k) || null;
 const list = (fd: FormData, k: string) =>
   str(fd, k)
@@ -30,7 +42,7 @@ const list = (fd: FormData, k: string) =>
     .filter(Boolean);
 const tags = (fd: FormData) => list(fd, "tags");
 const lines = (fd: FormData, k: string) =>
-  String(fd.get(k) ?? "")
+  text(fd, k)
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
@@ -83,7 +95,7 @@ export async function savePost(_: FormState, fd: FormData): Promise<FormState> {
     number: str(fd, "number") ? Number(str(fd, "number")) : null,
     subtitle: optional(fd, "subtitle"),
     excerpt: optional(fd, "excerpt"),
-    content: String(fd.get("content") ?? ""),
+    content: text(fd, "content"),
     tags: tags(fd),
     coverImage: optional(fd, "coverImage"),
     seoTitle: optional(fd, "seoTitle"),
@@ -104,11 +116,11 @@ export async function savePost(_: FormState, fd: FormData): Promise<FormState> {
       savedId = row.id;
     }
   } catch (e) {
-    if (String(e).includes("unique")) return { error: "That slug is already used." };
-    throw e;
+    if (pgCode(e) === "23505") return { error: "That slug is already used by another post." };
+    return saveFailed(e);
   }
   updateTag(TAGS.posts);
-  if (!id) redirect(`${ADMIN}/posts/${savedId}`);
+  if (!id) redirect(`${ADMIN}/posts/${savedId}?created=1`);
   return { ok: "Saved." };
 }
 
@@ -174,14 +186,18 @@ export async function saveCompany(_: FormState, fd: FormData): Promise<FormState
     updatedAt: new Date(),
   };
   let savedId = id;
-  if (id) {
-    await db.update(companies).set(values).where(eq(companies.id, id));
-  } else {
-    const [row] = await db.insert(companies).values(values).returning({ id: companies.id });
-    savedId = row.id;
+  try {
+    if (id) {
+      await db.update(companies).set(values).where(eq(companies.id, id));
+    } else {
+      const [row] = await db.insert(companies).values(values).returning({ id: companies.id });
+      savedId = row.id;
+    }
+  } catch (e) {
+    return saveFailed(e);
   }
   updateTag(TAGS.work);
-  if (!id) redirect(`${ADMIN}/companies/${savedId}`);
+  if (!id) redirect(`${ADMIN}/companies/${savedId}?created=1`);
   return { ok: "Saved." };
 }
 
@@ -218,14 +234,18 @@ export async function saveProject(_: FormState, fd: FormData): Promise<FormState
     updatedAt: new Date(),
   };
   let savedId = id;
-  if (id) {
-    await db.update(projects).set(values).where(eq(projects.id, id));
-  } else {
-    const [row] = await db.insert(projects).values(values).returning({ id: projects.id });
-    savedId = row.id;
+  try {
+    if (id) {
+      await db.update(projects).set(values).where(eq(projects.id, id));
+    } else {
+      const [row] = await db.insert(projects).values(values).returning({ id: projects.id });
+      savedId = row.id;
+    }
+  } catch (e) {
+    return saveFailed(e);
   }
   updateTag(TAGS.work);
-  if (!id) redirect(`${ADMIN}/projects/${savedId}`);
+  if (!id) redirect(`${ADMIN}/projects/${savedId}?created=1`);
   return { ok: "Saved." };
 }
 
@@ -266,7 +286,7 @@ export async function saveSettings(_: FormState, fd: FormData): Promise<FormStat
     workIntro: str(fd, "workIntro"),
     tinkeringIntro: str(fd, "tinkeringIntro"),
     aboutHeading: str(fd, "aboutHeading"),
-    aboutBody: String(fd.get("aboutBody") ?? "").trim(),
+    aboutBody: str(fd, "aboutBody"),
     aboutPhoto: str(fd, "aboutPhoto"),
     aboutPhotoCaption: str(fd, "aboutPhotoCaption"),
     now: lines(fd, "now"),
@@ -278,10 +298,18 @@ export async function saveSettings(_: FormState, fd: FormData): Promise<FormStat
     contactIntro: str(fd, "contactIntro"),
   };
   if (!value.name) return { error: "Name is required." };
-  await db
-    .insert(settings)
-    .values({ key: "site", value })
-    .onConflictDoUpdate({ target: settings.key, set: { value, updatedAt: new Date() } });
+  try {
+    // Keys the form doesn't send (e.g. `now`, which no page shows yet) keep their stored value.
+    const [row] = await db.select({ value: settings.value }).from(settings).where(eq(settings.key, "site"));
+    const sent = Object.fromEntries(Object.entries(value).filter(([k]) => fd.has(k)));
+    const merged = { ...row?.value, ...sent };
+    await db
+      .insert(settings)
+      .values({ key: "site", value: merged })
+      .onConflictDoUpdate({ target: settings.key, set: { value: merged, updatedAt: new Date() } });
+  } catch (e) {
+    return saveFailed(e);
+  }
   updateTag(TAGS.settings);
   return { ok: "Saved." };
 }
@@ -322,6 +350,11 @@ export async function uploadImage(fd: FormData): Promise<{ url?: string; error?:
   const contentType = sniffImageType(bytes);
   if (!contentType) return { error: "PNG, JPEG, GIF, WebP or AVIF only." };
   const id = randomBytes(12).toString("base64url");
-  await db.insert(media).values({ id, contentType, size: bytes.length, data: bytes.toString("base64") });
+  try {
+    await db.insert(media).values({ id, contentType, size: bytes.length, data: bytes.toString("base64") });
+  } catch (e) {
+    console.error(e);
+    return { error: "Upload failed, try again." };
+  }
   return { url: `/media/${id}` };
 }
