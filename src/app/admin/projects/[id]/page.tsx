@@ -22,7 +22,7 @@ export default async function EditProject({ params, searchParams }: Props) {
   if (!project) notFound();
   return (
     <>
-      <PageHeader back={["Projects", `${ADMIN}/projects`]} actions={<ConfirmDelete action={deleteProject} id={project.id} />}>
+      <PageHeader back={["Projects", `${ADMIN}/projects`]} actions={<ConfirmDelete action={deleteProject} id={project.id} title="Delete this project?" />}>
         Edit project
       </PageHeader>
       <ProjectForm project={project} companies={cos} created={created === "1"} />

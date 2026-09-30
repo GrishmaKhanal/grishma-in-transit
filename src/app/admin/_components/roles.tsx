@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Role } from "@/db/schema";
 import { input } from "./fields";
+import { Popconfirm } from "./popconfirm";
 import { useMarkDirty } from "./save";
 
 type Draft = { title: string; period: string; duration: string; points: string; stack: string };
@@ -65,9 +66,16 @@ export function RolesEditor({ initial }: { initial: Role[] }) {
           <div className="flex gap-4 text-sm text-ink-5">
             <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑ Up</button>
             <button type="button" onClick={() => move(i, 1)} disabled={i === roles.length - 1}>↓ Down</button>
-            <button type="button" onClick={() => setRoles((rs) => rs.filter((_, j) => j !== i))} className="ml-auto text-red-600">
-              Remove role
-            </button>
+            <Popconfirm
+              label="Remove role"
+              title={`Remove ${r.title.trim() ? `"${r.title.trim()}"` : "this role"}?`}
+              description="Its bullets and stack go too. Nothing changes on the site until you save."
+              confirmLabel="Remove"
+              skip={!Object.values(r).some((v) => v.trim())}
+              onConfirm={() => setRoles((rs) => rs.filter((_, j) => j !== i))}
+              className="ml-auto inline-flex"
+              triggerClassName="text-red-600 hover:underline"
+            />
           </div>
         </div>
       ))}

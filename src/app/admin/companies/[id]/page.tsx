@@ -21,7 +21,15 @@ export default async function EditCompany({ params, searchParams }: Props) {
     <>
       <PageHeader
         back={["Companies", `${ADMIN}/companies`]}
-        actions={<ConfirmDelete action={deleteCompany} id={company.id} label="Delete company (its projects become hidden drafts)" />}
+        actions={
+          <ConfirmDelete
+            action={deleteCompany}
+            id={company.id}
+            label="Delete company"
+            title={`Delete ${company.name}?`}
+            description="Its roles go with it. Its projects move to Tinkering as hidden drafts. This can't be undone."
+          />
+        }
       >
         Edit company
       </PageHeader>

@@ -19,7 +19,14 @@ export default async function EditPost({ params, searchParams }: Props) {
   if (!post) notFound();
   return (
     <>
-      <PageHeader back={["Posts", `${ADMIN}/posts`]} actions={<ConfirmDelete action={deletePost} id={post.id} />}>
+      <PageHeader back={["Posts", `${ADMIN}/posts`]} actions={
+          <ConfirmDelete
+            action={deletePost}
+            id={post.id}
+            title="Delete this post?"
+            description={post.published ? "It's live: its URL will start returning 404. This can't be undone." : "This can't be undone."}
+          />
+        }>
         Edit post
       </PageHeader>
       <PostForm post={post} created={created === "1"} />

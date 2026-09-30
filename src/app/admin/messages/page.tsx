@@ -38,7 +38,7 @@ export default async function MessagesAdmin() {
                 <input type="hidden" name="read" value={String(!m.read)} />
                 <button className="cursor-pointer underline">{m.read ? "Mark unread" : "Mark read"}</button>
               </form>
-              <ConfirmDelete action={deleteMessage} id={m.id} />
+              <ConfirmDelete action={deleteMessage} id={m.id} align="start" title={`Delete the message from ${m.name}?`} />
             </div>
           </li>
         ))}

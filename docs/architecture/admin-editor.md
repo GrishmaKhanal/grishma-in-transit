@@ -39,6 +39,10 @@ The login and contact forms follow this. `SaveForm` can't use `action=` (its act
 - `saveSettings` merges over the stored value, so a settings key with no field on the form (e.g. `now`) is kept rather than wiped.
 - Anything that still throws lands in `src/app/admin/error.tsx`, below the admin header, with a Try again button.
 
+## Confirmations
+
+Every delete (post, company, project, message), Log out, and every in-form removal (a role, a settings row, a post's image) goes through `Popconfirm` in `src/app/admin/_components/popconfirm.tsx`: a small panel anchored to its button. Focus starts on Cancel, so a stray Enter does nothing; Escape, a click outside or tabbing away closes it. It flips up or to the other edge when it wouldn't fit on screen. Empty rows and roles skip it (`skip`), since there is nothing to lose. Without `onConfirm`, its confirm button submits the enclosing form, which is how the Server Action deletes use it via `ConfirmDelete`.
+
 ## Editor conveniences
 
 - **Slug**: a new post's slug follows the title until you edit it. Emptying it goes back to following the title. A published post warns before its URL changes.

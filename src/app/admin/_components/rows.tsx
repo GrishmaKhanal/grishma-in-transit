@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { input } from "./fields";
+import { Popconfirm } from "./popconfirm";
 import { useMarkDirty } from "./save";
 
 type Col = { placeholder: string; type?: "text" | "url"; wide?: boolean };
@@ -75,9 +76,16 @@ export function RowsEditor({
             <button type="button" aria-label="Move down" disabled={i === rows.length - 1} onClick={() => move(i, 1)} className="px-1 hover:text-ink disabled:opacity-30">
               ↓
             </button>
-            <button type="button" aria-label="Remove" onClick={() => setRows(rows.filter((_, k) => k !== i))} className="px-1 hover:text-red-700">
-              ✕
-            </button>
+            <Popconfirm
+              label="✕"
+              ariaLabel="Remove"
+              title="Remove this row?"
+              description="Nothing changes on the site until you save."
+              confirmLabel="Remove"
+              skip={!r.some((v) => v.trim())}
+              onConfirm={() => setRows(rows.filter((_, k) => k !== i))}
+              triggerClassName="px-1 hover:text-red-700"
+            />
           </div>
         </div>
       ))}

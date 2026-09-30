@@ -3,6 +3,7 @@
 import { useId, useRef, useState, useTransition } from "react";
 import { readingTime, wordCount } from "@/lib/reading-time";
 import { previewMarkdown, uploadImage } from "../actions";
+import { Popconfirm } from "./popconfirm";
 import { useMarkDirty } from "./save";
 
 export const input =
@@ -116,16 +117,18 @@ export function ImageField({ name, label, defaultValue }: { name: string; label:
         <div className="flex items-end gap-3 pt-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="" className="max-h-32 border border-rule" />
-          <button
-            type="button"
-            onClick={() => {
+          <Popconfirm
+            label="Remove"
+            title="Remove this image?"
+            description="Clears the field. The site keeps the old image until you save."
+            confirmLabel="Remove"
+            align="start"
+            onConfirm={() => {
               setValue("");
               markDirty();
             }}
-            className="text-xs text-red-700"
-          >
-            Remove
-          </button>
+            triggerClassName="text-xs text-red-700 hover:underline"
+          />
         </div>
       )}
     </div>
@@ -262,20 +265,32 @@ export function MarkdownField({ name, defaultValue = "" }: { name: string; defau
   );
 }
 
-export function ConfirmDelete({ action, id, label = "Delete" }: { action: (fd: FormData) => void; id: number; label?: string }) {
-  const [armed, setArmed] = useState(false);
-  return armed ? (
-    <form action={action} className="flex items-center gap-2 text-sm">
+export function ConfirmDelete({
+  action,
+  id,
+  label = "Delete",
+  title = "Delete this?",
+  description = "This can't be undone.",
+  align = "end",
+}: {
+  action: (fd: FormData) => void;
+  id: number;
+  label?: string;
+  title?: string;
+  description?: string;
+  align?: "start" | "end";
+}) {
+  return (
+    <form action={action} className="inline-flex">
       <input type="hidden" name="id" value={id} />
-      <span>Permanently delete?</span>
-      <button className=" bg-red-600 px-3 py-1 text-white">Yes, delete</button>
-      <button type="button" onClick={() => setArmed(false)} className="px-2 py-1">
-        Cancel
-      </button>
+      <Popconfirm
+        label={label}
+        title={title}
+        description={description}
+        confirmLabel="Delete"
+        align={align}
+        triggerClassName="text-sm text-red-700 hover:underline"
+      />
     </form>
-  ) : (
-    <button type="button" onClick={() => setArmed(true)} className="text-sm text-red-600">
-      {label}
-    </button>
   );
 }

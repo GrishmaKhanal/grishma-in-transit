@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { logout } from "../actions";
+import { Popconfirm } from "./popconfirm";
 
 const items = [
   ["Dashboard", ""],
@@ -54,5 +56,21 @@ export function AdminNav({ unread, base }: { unread: number; base: string }) {
         );
       })}
     </nav>
+  );
+}
+
+export function LogoutButton() {
+  return (
+    <form action={logout} className="flex border-l border-ink">
+      <Popconfirm
+        label="Log out"
+        title="Log out?"
+        description="Unsaved changes on this page will be lost."
+        confirmLabel="Log out"
+        danger={false}
+        className="flex items-stretch"
+        triggerClassName="px-4 hover:bg-ink hover:text-paper"
+      />
+    </form>
   );
 }

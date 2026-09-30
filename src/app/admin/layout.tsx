@@ -5,8 +5,7 @@ import { db, hasDb } from "@/db";
 import { messages } from "@/db/schema";
 import { isAdmin } from "@/lib/auth";
 import { ADMIN } from "@/lib/admin-path";
-import { logout } from "./actions";
-import { AdminNav } from "./_components/nav";
+import { AdminNav, LogoutButton } from "./_components/nav";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -40,9 +39,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Link href="/" target="_blank" className="flex items-center px-4">
                 View site ↗
               </Link>
-              <form action={logout} className="flex border-l border-ink">
-                <button className="cursor-pointer px-4 hover:bg-ink hover:text-paper">Log out</button>
-              </form>
+              <LogoutButton />
             </div>
           </div>
         </header>
