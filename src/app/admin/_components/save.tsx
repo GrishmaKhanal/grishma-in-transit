@@ -112,7 +112,8 @@ export function SaveForm({
 
   return (
     <MarkDirty.Provider value={markDirty}>
-      <form ref={ref} onSubmit={onSubmit} onInput={markDirty} className={className}>
+      {/* method="post" so a submit before hydration can't put the form's contents in the URL. */}
+      <form ref={ref} method="post" onSubmit={onSubmit} onInput={markDirty} className={className}>
         {children}
         <div
           className={`sticky bottom-0 z-10 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink bg-paper py-3 ${barClassName}`}

@@ -9,9 +9,11 @@ const field =
 export function ContactForm() {
   const [state, action, pending] = useActionState(sendMessage, undefined);
   return (
-    // onSubmit rather than action: React resets an action form, which would wipe a visitor's
-    // message when validation fails.
+    // `action` covers submits before hydration (a POST, never a GET that puts the message in the
+    // URL). After hydration onSubmit takes over, which skips React's reset of action forms so a
+    // validation error doesn't wipe the visitor's message.
     <form
+      action={action}
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);

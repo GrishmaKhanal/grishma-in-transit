@@ -25,8 +25,11 @@ export function LoginForm() {
           <div className="font-mono text-[11px] text-ink-4">Sign in to edit the site</div>
         </div>
       </div>
-      {/* onSubmit rather than action: React resets an action form, which would clear the username on a typo. */}
+      {/* `action` covers submits before hydration (a real POST, never a GET with the password in
+          the URL). After hydration onSubmit takes over, which skips React's reset of action forms
+          so a typo doesn't clear the username. */}
       <form
+        action={action}
         onSubmit={(e) => {
           e.preventDefault();
           const fd = new FormData(e.currentTarget);
