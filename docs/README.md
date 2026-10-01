@@ -7,6 +7,7 @@ How this site is built, how data moves through it, and how to ship changes.
 | [`architecture/`](architecture/) | understand why this is one app, and where the "frontend" ends and the "backend" begins |
 | [`database/`](database/) | change a table, write a migration, or reset your local DB |
 | [`deploy/`](deploy/) | put the site online the first time, or ship a change safely |
+| [`improvement/`](improvement/) | see planned features that aren't built yet |
 
 ## Map
 
@@ -26,6 +27,8 @@ How this site is built, how data moves through it, and how to ship changes.
   - [netlify.md](deploy/netlify.md): **Netlify**, step by step after picking the GitHub repo, plus using the DB and how migrations run
   - [first-deploy.md](deploy/first-deploy.md): the same for any host: what it needs, in order
   - [releasing.md](deploy/releasing.md): the everyday ship loop, previews, rollback
+- **improvement/**
+  - [image-library.md](improvement/image-library.md): named, searchable, reusable uploads with saved alt text (proposed)
 
 ## Cheat sheet
 
