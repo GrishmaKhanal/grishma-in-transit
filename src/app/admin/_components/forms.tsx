@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import type { Company, KV, Post, Project, SiteSettings } from "@/db/schema";
 import { slugify } from "@/lib/slug";
 import { login, saveCompany, savePost, saveProject, saveSettings } from "../actions";
@@ -83,13 +83,45 @@ export function PostForm({ post, created }: { post?: Post; created?: boolean }) 
   const shownSlug = slugEdited ? slug : slugify(title);
   const path = pathFor(kind, shownSlug);
   const livePath = post?.published ? pathFor(post.kind, post.slug) : null;
+  const [focus, setFocusState] = useState(false);
+  const [drawer, setDrawer] = useState(false);
+  const setFocus = (on: boolean | ((f: boolean) => boolean)) => {
+    setFocusState(on);
+    setDrawer(false);
+  };
+
+  // Ctrl/Cmd+Shift+F toggles focus mode; Escape leaves it, unless something inside
+  // (a confirmation, the open drawer) handled the key first.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        setFocus((f) => !f);
+      } else if (e.key === "Escape" && !e.defaultPrevented) setFocus(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // The page behind the overlay shouldn't scroll.
+  useEffect(() => {
+    if (!focus) return;
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
+  }, [focus]);
 
   return (
     <SaveForm
       action={savePost}
       created={created}
-      className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"
-      barClassName="lg:col-span-2"
+      className={
+        focus
+          ? "fixed inset-0 z-40 flex flex-col gap-4 bg-paper px-[clamp(16px,3vw,40px)] pt-4"
+          : "grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"
+      }
+      barClassName={focus ? "" : "lg:col-span-2"}
       extra={
         livePath && (
           <a href={livePath} target="_blank" className="underline">
@@ -99,13 +131,66 @@ export function PostForm({ post, created }: { post?: Post; created?: boolean }) 
       }
     >
       {post && <input type="hidden" name="id" value={post.id} />}
-      <div className="min-w-0 space-y-4">
+      <div className={focus ? "flex min-h-0 flex-1 flex-col gap-4" : "min-w-0 space-y-4"}>
         <Field label="Title">
           <input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required className={`${input} text-lg`} />
         </Field>
-        <MarkdownField name="content" defaultValue={post?.content} />
+        <MarkdownField
+          name="content"
+          defaultValue={post?.content}
+          fill={focus}
+          toolbar={
+            <button
+              type="button"
+              onClick={() => setFocus((f) => !f)}
+              title="Ctrl/⌘ + Shift + F · Esc to leave"
+              className="border border-rule px-3 py-1 hover:border-ink"
+            >
+              {focus ? "Exit focus" : "Focus"}
+            </button>
+          }
+        />
       </div>
-      <aside className="space-y-4">
+      {focus && (
+        <>
+          {/* Hovering this strip at the window's right edge slides the settings in. */}
+          <div aria-hidden className="peer fixed inset-y-0 right-0 z-30 w-3" />
+          <button
+            type="button"
+            onClick={() => setDrawer((d) => !d)}
+            aria-expanded={drawer}
+            aria-controls="post-settings"
+            className="fixed top-1/2 right-0 z-30 origin-bottom-right -translate-y-1/2 -rotate-90 border border-b-0 border-ink bg-paper px-3 py-1 text-xs font-medium whitespace-nowrap"
+          >
+            Settings
+          </button>
+        </>
+      )}
+      {/* Moved with CSS only, never unmounted, so its fields still post with the form. */}
+      <aside
+        id="post-settings"
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && drawer) {
+            e.preventDefault();
+            setDrawer(false);
+          }
+        }}
+        className={
+          focus
+            ? `fixed inset-y-0 right-0 z-30 w-[min(360px,100vw)] space-y-4 overflow-y-auto border-l border-ink bg-paper p-5 shadow-[-8px_0_24px_rgba(0,0,0,.08)] transition-transform duration-200 peer-hover:translate-x-0 hover:translate-x-0 focus-within:translate-x-0 ${drawer ? "translate-x-0" : "translate-x-full"}`
+            : "space-y-4"
+        }
+      >
+        {focus && (
+          <div className="flex items-center justify-between">
+            <span className="font-serif text-lg font-extrabold">Post settings</span>
+            {drawer && (
+              <button type="button" onClick={() => setDrawer(false)} className="text-sm text-ink-5 hover:text-ink">
+                Close
+              </button>
+            )}
+          </div>
+        )}
         <label className="flex items-start gap-2.5 border border-rule bg-[#faf9f6] p-3 text-sm">
           <input type="checkbox" name="published" checked={published} onChange={(e) => setPublished(e.target.checked)} className="mt-0.5" />
           <span>

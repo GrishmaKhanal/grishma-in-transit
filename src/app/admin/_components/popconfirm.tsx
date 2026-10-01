@@ -61,6 +61,7 @@ export function Popconfirm({
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
+      e.preventDefault(); // handled: the post editor's focus mode stays open
       setOpen(false);
       trigger.current?.focus();
     };
