@@ -146,7 +146,7 @@ export async function importStarterContent() {
 
 const expireAll = () => Object.values(TAGS).forEach((t) => updateTag(t));
 
-// For edits made outside the admin (npm run db:sample, db:studio, raw SQL): they never
+// expire the cache, so public pages would stay stale until the next deploy.
 // expire the cache, so public pages would stay stale for up to an hour.
 export async function refreshPublicPages() {
   await requireAdmin();

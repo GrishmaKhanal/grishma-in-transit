@@ -78,7 +78,7 @@ That makes it safe to run against production once after the first deploy. It nev
 
 Sample rows use ids from 9001 (the image id starts with `sample`), so rerunning replaces them and `npm run db:sample -- --remove` deletes only them. The script refuses any `DATABASE_URL` that isn't `localhost` or `127.0.0.1`.
 
-It writes straight to the database, which doesn't expire the page cache. Afterwards click **Refresh public pages** on the admin dashboard, or the public pages keep showing old content for up to an hour.
+It writes straight to the database, which doesn't expire the page cache. Afterwards click **Refresh public pages** on the admin dashboard, or the public pages keep showing old content.
 
 ## Reset
 
