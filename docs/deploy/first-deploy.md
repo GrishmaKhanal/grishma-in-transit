@@ -33,7 +33,7 @@ npm run build
    ```sh
    DATABASE_URL='<production connection string>' npm run db:seed
    ```
-   The seed is idempotent and never overwrites existing rows. The terminal route doesn't expire the page cache, so click **Refresh public pages** on the admin dashboard afterwards, or pages visited before the seed can keep showing the empty state for up to an hour.
+   The seed is idempotent and never overwrites existing rows. The terminal route doesn't expire the page cache, so click **Refresh public pages** on the admin dashboard afterwards, or pages visited before the seed keep showing the empty state.
 5. **Check it.**
    - `/` shows your content.
    - `<ADMIN_PATH>` shows the login form.

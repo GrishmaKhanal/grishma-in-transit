@@ -15,6 +15,8 @@ export async function GET(_req: NextRequest, ctx: RouteContext<"/media/[id]">) {
       "Content-Type": row.contentType,
       "Content-Length": String(row.size),
       "Cache-Control": "public, max-age=31536000, immutable",
+      // Netlify's CDN: cache once for all edge locations, so each image reads the database once.
+      "Netlify-CDN-Cache-Control": "public, max-age=31536000, durable",
       "X-Content-Type-Options": "nosniff",
       "Content-Security-Policy": "default-src 'none'; sandbox",
     },

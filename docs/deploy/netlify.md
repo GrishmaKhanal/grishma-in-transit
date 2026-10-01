@@ -133,7 +133,7 @@ Then click **Refresh public pages** on the admin dashboard. A seed from the term
   ```sh
   DATABASE_URL='<read-only string>' DATABASE_URL_UNPOOLED='<read-only string>' npm run db:studio
   ```
-- **Any Postgres GUI** (TablePlus, DBeaver, pgAdmin, `psql`): use the read-only string. With the read-write one, your edits are live, though cached pages may show old data for up to an hour.
+- **Any Postgres GUI** (TablePlus, DBeaver, pgAdmin, `psql`): use the read-only string. With the read-write one, your edits are live, though cached public pages keep showing old data until you click **Refresh public pages** on the admin dashboard.
 
 ## How migrations work
 

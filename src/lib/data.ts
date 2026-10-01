@@ -25,8 +25,10 @@ function revive<T>(v: T): T {
   return v;
 }
 
+// No time-based expiry: each read hits the database again only after its tag is expired.
+// An hourly revalidate woke the (scale-to-zero) database for whichever bot came next.
 function cached<A extends unknown[], R>(fn: (...a: A) => Promise<R>, key: string, tags: string[]) {
-  const c = unstable_cache(fn, [key], { tags, revalidate: 3600 });
+  const c = unstable_cache(fn, [key], { tags, revalidate: false });
   return async (...a: A) => revive(await c(...a));
 }
 
