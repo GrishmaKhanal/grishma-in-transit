@@ -28,7 +28,7 @@ How this site is built, how data moves through it, and how to ship changes.
   - [first-deploy.md](deploy/first-deploy.md): the same for any host: what it needs, in order
   - [releasing.md](deploy/releasing.md): the everyday ship loop, previews, rollback
 - **improvement/**
-  - [image-library.md](improvement/image-library.md): named, searchable, reusable uploads with saved alt text (proposed)
+  - [image-library.md](improvement/image-library.md): named, searchable, reusable uploads with saved alt text, bytes in R2/S3 behind a CDN instead of Postgres (proposed)
 
 ## Cheat sheet
 
