@@ -7,7 +7,7 @@ How this site is built, how data moves through it, and how to ship changes.
 | [`architecture/`](architecture/) | understand why this is one app, and where the "frontend" ends and the "backend" begins |
 | [`database/`](database/) | change a table, write a migration, or reset your local DB |
 | [`deploy/`](deploy/) | put the site online the first time, or ship a change safely |
-| [`improvement/`](improvement/) | see planned features that aren't built yet |
+| [`improvement/`](improvement/) | see what to fix next (SEO, speed, security) and planned features that aren't built yet |
 
 ## Map
 
@@ -28,6 +28,10 @@ How this site is built, how data moves through it, and how to ship changes.
   - [first-deploy.md](deploy/first-deploy.md): the same for any host: what it needs, in order
   - [releasing.md](deploy/releasing.md): the everyday ship loop, previews, rollback
 - **improvement/**
+  - [roadmap.md](improvement/roadmap.md): **start here.** One ordered list: SEO first, then smoothness, then security
+  - [seo.md](improvement/seo.md): canonical/sitemap URLs point at `netlify.app` instead of the real domain, and how to fix it
+  - [performance.md](improvement/performance.md): Lighthouse results (2026-10-05), TTFB, the `/about` LCP, JS weight, plus contrast and labelling fixes
+  - [security-hardening.md](improvement/security-hardening.md): public summary of the 2026-10-02 security review and its fix plan (full report kept local in the gitignored `docs/security-review/`)
   - [image-library.md](improvement/image-library.md): named, searchable, reusable uploads with saved alt text, bytes in R2/S3 behind a CDN instead of Postgres (proposed)
 
 ## Cheat sheet

@@ -46,3 +46,7 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Full security review: kept local until the fixes ship (repo is public).
+# The public summary is docs/improvement/security-hardening.md.
+/docs/security-review/
