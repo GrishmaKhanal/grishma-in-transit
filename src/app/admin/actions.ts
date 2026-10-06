@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, lt, sql } from "drizzle-orm";
+import { count, eq, lt, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { randomBytes } from "node:crypto";
@@ -141,6 +141,14 @@ export async function deletePost(fd: FormData) {
 export async function importStarterContent() {
   await requireAdmin();
   assertDb();
+  // The button only shows on an empty database; check again here, since a stale tab
+  // or a replayed request can still post to this action.
+  const [[p], [c], [pr]] = await Promise.all([
+    db.select({ n: count() }).from(posts),
+    db.select({ n: count() }).from(companies),
+    db.select({ n: count() }).from(projects),
+  ]);
+  if (p.n + c.n + pr.n > 0) redirect(ADMIN);
   await seedDatabase();
   expireAll();
   redirect(ADMIN);

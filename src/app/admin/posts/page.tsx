@@ -47,7 +47,7 @@ export default async function PostsAdmin({ searchParams }: { searchParams: Promi
             <span className="hidden font-mono text-xs text-ink-5 sm:block">{p.updatedAt.toISOString().slice(0, 10)}</span>
             <span className="hidden text-right text-sm sm:block">
               {p.published && (
-                <a href={postPath(p)} target="_blank" className="text-ink-5 hover:underline">
+                <a href={postPath(p)} target="_blank" rel="noreferrer" className="text-ink-5 hover:underline">
                   View ↗
                 </a>
               )}
