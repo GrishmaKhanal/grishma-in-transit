@@ -8,9 +8,11 @@ export const alt = "Article cover";
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const [p, s] = await Promise.all([getPublishedPost("note", (await params).slug), getSettings()]);
+  // No card for drafts or unknown slugs: rendering one costs CPU per junk URL.
+  if (!p) return new Response("Not found", { status: 404 });
   return ogCard({
-    eyebrow: p ? postEyebrow(p) : "Writing",
-    title: p?.title ?? s.name,
+    eyebrow: postEyebrow(p),
+    title: p.title,
     footer: `${s.name} · Writing`,
     monogram: s.monogram,
   });

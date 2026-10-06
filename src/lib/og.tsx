@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 
 export const ogSize = { width: 1200, height: 630 };
 
-const fonts = async () => {
+const loadFonts = async () => {
   const [serif, mono] = await Promise.all([
     readFile(join(process.cwd(), "assets/SourceSerif4-Bold.ttf")),
     readFile(join(process.cwd(), "assets/GeistMono-Medium.ttf")),
@@ -14,6 +14,10 @@ const fonts = async () => {
     { name: "Mono", data: mono, weight: 500 as const, style: "normal" as const },
   ];
 };
+
+// Read once per server instance, not once per card. A failed read isn't kept.
+let fontsPromise: ReturnType<typeof loadFonts> | null = null;
+const fonts = () => (fontsPromise ??= loadFonts().catch((e) => ((fontsPromise = null), Promise.reject(e))));
 
 /** Social card in the site's paper/ink/accent style. */
 export async function ogCard({ eyebrow, title, footer, monogram }: { eyebrow: string; title: string; footer: string; monogram: string }) {

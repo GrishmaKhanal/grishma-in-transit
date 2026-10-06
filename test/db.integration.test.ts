@@ -74,7 +74,9 @@ test("an uploaded image is stored in Postgres and served from /media/[id]", asyn
   assert.match(res.headers.get("cache-control")!, /immutable/);
   assert.match(res.headers.get("content-security-policy")!, /sandbox/);
   assert.deepEqual(Buffer.from(await res.arrayBuffer()), png);
-  assert.equal((await get("A".repeat(16))).status, 404, "unknown id");
+  const missing = await get("A".repeat(16));
+  assert.equal(missing.status, 404, "unknown id");
+  assert.equal(missing.headers.get("cache-control"), "public, max-age=60", "misses are cached briefly");
   assert.equal((await get("../../etc/passwd")).status, 404, "malformed id");
 });
 
