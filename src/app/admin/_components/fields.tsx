@@ -326,13 +326,16 @@ export function MarkdownField({
 export function ConfirmDelete({
   action,
   id,
+  fields = {},
   label = "Delete",
   title = "Delete this?",
   description = "This can't be undone.",
   align = "end",
 }: {
   action: (fd: FormData) => void;
-  id: number;
+  id?: number;
+  /** Extra hidden inputs, e.g. for a bulk delete that has no single id. */
+  fields?: Record<string, string | number>;
   label?: string;
   title?: string;
   description?: string;
@@ -340,7 +343,10 @@ export function ConfirmDelete({
 }) {
   return (
     <form action={action} className="inline-flex">
-      <input type="hidden" name="id" value={id} />
+      {id !== undefined && <input type="hidden" name="id" value={id} />}
+      {Object.entries(fields).map(([k, v]) => (
+        <input key={k} type="hidden" name={k} value={v} />
+      ))}
       <Popconfirm
         label={label}
         title={title}

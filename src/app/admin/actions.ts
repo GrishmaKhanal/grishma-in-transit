@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, lt, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { randomBytes } from "node:crypto";
@@ -324,6 +324,12 @@ export async function saveSettings(_: FormState, fd: FormData): Promise<FormStat
 
 /* ---------- messages ---------- */
 
+// Back to the inbox page the form was on.
+const inbox = (fd: FormData) => {
+  const page = Number(fd.get("page"));
+  return `${ADMIN}/messages${Number.isInteger(page) && page > 1 ? `?page=${page}` : ""}`;
+};
+
 export async function toggleMessageRead(fd: FormData) {
   await requireAdmin();
   assertDb();
@@ -331,13 +337,29 @@ export async function toggleMessageRead(fd: FormData) {
     .update(messages)
     .set({ read: fd.get("read") === "true" })
     .where(eq(messages.id, Number(fd.get("id"))));
-  redirect(`${ADMIN}/messages`);
+  redirect(inbox(fd));
 }
 
 export async function deleteMessage(fd: FormData) {
   await requireAdmin();
   assertDb();
   await db.delete(messages).where(eq(messages.id, Number(fd.get("id"))));
+  redirect(inbox(fd));
+}
+
+/** Bulk delete: every read message, or every message older than N days. */
+const RETENTION_DAYS = [30, 90, 365]; // a 'use server' file may only export async functions
+
+export async function deleteMessages(fd: FormData) {
+  await requireAdmin();
+  assertDb();
+  if (fd.get("scope") === "read") {
+    await db.delete(messages).where(eq(messages.read, true));
+  } else {
+    const days = Number(fd.get("days"));
+    if (!RETENTION_DAYS.includes(days)) throw new Error("Unsupported retention period.");
+    await db.delete(messages).where(lt(messages.createdAt, sql`now() - make_interval(days => ${days})`));
+  }
   redirect(`${ADMIN}/messages`);
 }
 
