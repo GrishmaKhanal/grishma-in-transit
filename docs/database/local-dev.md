@@ -51,7 +51,7 @@ The container creates the database itself (`POSTGRES_DB`). Start it each day wit
 
 ```
 ADMIN_PATH=/whatever-you-like
-ADMIN_USERNAME=...  ADMIN_PASSWORD=...  SESSION_SECRET=$(openssl rand -base64 48)
+ADMIN_USERNAME=...  ADMIN_PASSWORD=<16+ characters>  SESSION_SECRET=$(openssl rand -base64 48)
 SITE_URL=http://localhost:3000
 ```
 

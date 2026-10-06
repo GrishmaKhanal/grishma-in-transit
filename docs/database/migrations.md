@@ -40,7 +40,7 @@ git push
 | Previews | Skipped (no `RUN_MIGRATIONS`) | Only enable it if previews have their own database (see [../deploy/releasing.md](../deploy/releasing.md#preview-deployments)) |
 | No `DATABASE_URL` | Skipped | The site serves seed content |
 
-Migrations connect with `DATABASE_URL_UNPOOLED` when it's set (Neon's direct connection), otherwise `DATABASE_URL`. `drizzle-kit migrate` records each applied file in `drizzle.__drizzle_migrations`, so re-running it is a no-op.
+Migrations connect with `DATABASE_URL_UNPOOLED` when it's set (Neon's direct connection), otherwise `DATABASE_URL`. The build refuses to migrate when the two name different databases (Neon's `-pooler` host counts as the same); see [env-vars.md](../deploy/env-vars.md). `drizzle-kit migrate` records each applied file in `drizzle.__drizzle_migrations`, so re-running it is a no-op.
 
 ## Safety rules
 

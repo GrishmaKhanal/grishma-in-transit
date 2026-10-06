@@ -18,8 +18,8 @@ One Next.js app plus one Postgres database. Nothing is tied to a host.
 2. Connect the GitHub repo to the host. Build command: `npm run build`.
 3. Set env vars (see [docs/deploy/env-vars.md](docs/deploy/env-vars.md)):
    - production only: `DATABASE_URL` and `RUN_MIGRATIONS=true`;
-   - all contexts: `ADMIN_PATH`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` and `SESSION_SECRET` (`openssl rand -base64 48`);
-   - `SITE_URL`: your public origin.
+   - production only, so previews have no admin: `ADMIN_PATH`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` (16+ characters) and `SESSION_SECRET` (`openssl rand -base64 48`);
+   - `SITE_URL`: your public origin. A production build fails if it's missing, `localhost` or a `netlify.app` host.
 4. Deploy. The build applies `drizzle/*.sql`, then builds.
 5. Log in at `<site><ADMIN_PATH>` and click **Import starter content** (once).
 6. Add your domain, set `SITE_URL` to it, redeploy, and submit `https://<domain>/sitemap.xml` in Google Search Console.
