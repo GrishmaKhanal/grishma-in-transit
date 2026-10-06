@@ -14,7 +14,7 @@ ADMIN_PATH=/studio-7f3k2a     # anything you like; letters, numbers, - _ /
 |---|---|
 | `$ADMIN_PATH` | Login form (or the dashboard if you're signed in) |
 | `$ADMIN_PATH/posts`, `/settings`, … | Rewritten internally to `/admin/...`. Without a valid session it redirects to `$ADMIN_PATH`. |
-| `/admin`, `/admin/*` | **The site's normal 404**, even with a valid session. It's indistinguishable from any unknown URL. |
+| `/admin`, `/admin/*`, and spellings like `/%61dmin`, `//admin`, `/ADMIN` | **The site's normal 404**, even with a valid session. It's indistinguishable from any unknown URL. The proxy checks the decoded path, so escapes don't slip past it. |
 | anything else | Passes through untouched |
 | `ADMIN_PATH` unset | The admin is disabled; everything under `/admin` 404s |
 
@@ -42,21 +42,21 @@ Avoid anything a scanner would try: `/admin`, `/login`, `/dashboard`, `/wp-admin
 For a single-author portfolio, **a hidden URL plus a password is a reasonable setup**, and it isn't *only* obscurity. The layers are:
 
 1. **Unguessable URL.** Automated scanners and casual visitors never find the login form.
-2. **Username + password.** `ADMIN_USERNAME` (case-insensitive) and `ADMIN_PASSWORD` are both required. Each is hashed and compared in constant time, both checks always run (timing doesn't reveal which field was wrong), the error never says which one it was, and each failed attempt waits 800 ms. If either env var is unset, login is disabled.
-3. **Signed session.** An HS256 JWT in an `httpOnly`, `sameSite=lax` cookie (`secure` in production). It lasts 7 days and is signed with `SESSION_SECRET`.
-4. **Checked twice.** Once in the proxy and again in every Server Action and page (`requireAdmin()`, `guard()`). A proxy mistake alone doesn't expose writes.
+2. **Username + password.** `ADMIN_USERNAME` (case-insensitive) and `ADMIN_PASSWORD` are both required. Each is hashed and compared in constant time, both checks always run (timing doesn't reveal which field was wrong), the error never says which one it was, and each failed attempt waits 800 ms and is logged as `admin: failed login` (never with what was typed). If either env var is unset, or `ADMIN_PASSWORD` is shorter than 16 characters, login is disabled.
+3. **Signed session.** An HS256 JWT with a pinned issuer, audience and `role: admin`, in an `httpOnly`, `sameSite=lax` cookie. In production the cookie is `__Host-admin_session`: the browser only accepts it over HTTPS, on `path=/`, with no `Domain`, so a subdomain can't set or overwrite it. Locally it's `admin_session`. It lasts 7 days. The signing key is derived from `SESSION_SECRET` and `ADMIN_PASSWORD` in `src/lib/session.ts`, which the proxy and `src/lib/auth.ts` share.
+4. **Checked twice.** Once in the proxy and again in every Server Action (`requireAdmin()`) and page (`guard()`). A proxy mistake alone doesn't expose writes. `guard()` answers 404 rather than redirecting, so a request that got past the proxy never sees the admin path in a `Location` header.
 
 What it doesn't have, and when you'd want it:
 
 - **No lockout or rate limit** beyond the 800 ms delay. With a long random password that's fine. If you ever reuse a weak password, add rate limiting on `$ADMIN_PATH` at your host or CDN.
 - **No per-user accounts or 2FA.** Add a real auth provider if a second editor ever needs access.
-- **No per-session revocation.** Changing `SESSION_SECRET` logs everyone out immediately.
+- **No per-session revocation.** Changing `SESSION_SECRET` or `ADMIN_PASSWORD` logs everyone out, once the redeploy that applies it is live.
 
 ## Sessions
 
 | Action | How |
 |---|---|
-| Log in | Username + password form at `$ADMIN_PATH`, which sets the `admin_session` cookie |
-| Log out | Button in the admin header, which deletes the cookie |
-| Force everyone out | Rotate `SESSION_SECRET` at your host and redeploy |
-| Change username or password | Change `ADMIN_USERNAME` / `ADMIN_PASSWORD` at your host and redeploy. Existing sessions stay valid until they expire or you rotate `SESSION_SECRET`. |
+| Log in | Username + password form at `$ADMIN_PATH`, which sets the session cookie (`__Host-admin_session` in production) |
+| Log out | Button in the admin header, which deletes the cookie and goes to `/` |
+| Force everyone out | Rotate `SESSION_SECRET` (or change `ADMIN_PASSWORD`) at your host and redeploy |
+| Change username or password | Change `ADMIN_USERNAME` / `ADMIN_PASSWORD` at your host and redeploy. A new password also ends every existing session; a new username doesn't. |

@@ -24,8 +24,9 @@ Everything the app answers, in one place. There is no JSON API: pages are HTML, 
 | `/robots.txt` | `src/app/robots.ts` | Allows everything and points at the sitemap. Deliberately does not list `ADMIN_PATH`. |
 | `/manifest.webmanifest` | `src/app/manifest.ts` | Web app manifest. |
 | `/opengraph-image` | `src/app/opengraph-image.tsx` | Site-wide 1200x630 social card, generated. |
-| `/blog/<slug>/opengraph-image`, `/notes/<slug>/opengraph-image` | `opengraph-image.tsx` beside each page | Per-post social card, generated on request. |
-| `/media/<id>` | `src/app/media/[id]/route.ts` | Uploaded images from the `media` table. `id` must be 16 url-safe characters. `Cache-Control: immutable`, `nosniff`. 404 when there is no database. |
+| `/about/opengraph-image` | `(site)/about/opengraph-image.tsx` | About-page social card, generated at build. |
+| `/blog/<slug>/opengraph-image`, `/notes/<slug>/opengraph-image` | `opengraph-image.tsx` beside each page | Per-post social card, generated on request. 404 for drafts and unknown slugs. |
+| `/media/<id>` | `src/app/media/[id]/route.ts` | Uploaded images from the `media` table. `id` must be 16 url-safe characters. `Cache-Control: immutable`, `nosniff`. 404 for an unknown id or when there is no database; misses are cached for a minute. |
 | `/icon.svg`, `/apple-icon.png`, `/favicon.ico`, `/icons/*`, `/images/*`, `/assets/*`, `/video/*` | `src/app/*`, `public/` | Static files. The proxy skips these prefixes. |
 
 ## Redirects (308, `next.config.ts`)
@@ -48,9 +49,9 @@ Everything the app answers, in one place. There is no JSON API: pages are HTML, 
 | `$ADMIN_PATH/companies`, `/companies/new`, `/companies/<id>` | Companies and their roles. |
 | `$ADMIN_PATH/projects`, `/projects/new`, `/projects/<id>` | Projects. `/projects/new?company=<id>` preselects the company. |
 | `$ADMIN_PATH/settings` | All site copy. |
-| `$ADMIN_PATH/messages` | Contact-form inbox. |
+| `$ADMIN_PATH/messages` | Contact-form inbox, 50 per page (`?page=N`). |
 
-Anything below `$ADMIN_PATH` without a valid session redirects to `$ADMIN_PATH`.
+Anything below `$ADMIN_PATH` without a valid session redirects to `$ADMIN_PATH`. If a request ever reaches an admin page without a session anyway, the page answers 404.
 
 ## Server Actions
 
@@ -58,17 +59,17 @@ Called from forms. On the wire each one is a `POST` to the page it was called fr
 
 | Action | File | Who | Does |
 |---|---|---|---|
-| `sendMessage` | `src/app/actions/contact.ts` | Anyone | Validates with zod, drops honeypot hits, inserts into `messages`. |
-| `login` | `src/app/admin/actions.ts` | Anyone | Checks `ADMIN_USERNAME` / `ADMIN_PASSWORD`, sets the session cookie. 800 ms delay on failure. |
-| `logout` | same | Anyone | Deletes the session cookie. |
+| `sendMessage` | `src/app/actions/contact.ts` | Anyone | Validates with zod, drops honeypot hits, refuses once 20 messages have arrived in the past hour (site-wide), inserts into `messages`. |
+| `login` | `src/app/admin/actions.ts` | Anyone | Checks `ADMIN_USERNAME` / `ADMIN_PASSWORD` (16+ characters), sets the session cookie. 800 ms delay and a log line on failure. |
+| `logout` | same | Anyone | Deletes the session cookie, then redirects to `/`. |
 | `savePost`, `deletePost` | same | Admin | Create/update/delete a post, expire `posts`. |
 | `saveCompany`, `deleteCompany` | same | Admin | Company and roles; delete hides its projects first. Expire `work`. |
 | `saveProject`, `deleteProject` | same | Admin | Expire `work`. |
-| `saveSettings` | same | Admin | Merge the form into the `settings` row, expire `settings`. |
-| `toggleMessageRead`, `deleteMessage` | same | Admin | Inbox actions. |
+| `saveSettings` | same | Admin | Reject an unknown time zone, merge the form into the `settings` row, expire `settings`. |
+| `toggleMessageRead`, `deleteMessage`, `deleteMessages` | same | Admin | Inbox actions. `deleteMessages` bulk-deletes every read message, or every message older than 90 days. |
 | `uploadImage` | same | Admin | Byte-sniffed PNG/JPEG/GIF/WebP/AVIF up to 4 MB into `media`; returns `/media/<id>`. |
 | `previewMarkdown` | same | Admin | Renders markdown for the editor's Preview tab. |
-| `importStarterContent` | same | Admin | Runs the idempotent seed, expires every tag. |
+| `importStarterContent` | same | Admin | Runs the idempotent seed (only while the database has no posts, companies or projects), expires every tag. |
 | `refreshPublicPages` | same | Admin | Expires every tag, for changes made outside the admin. |
 
 "Admin" means the action calls `requireAdmin()` before anything else; the proxy's session check is only the first layer.

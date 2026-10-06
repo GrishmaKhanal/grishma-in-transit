@@ -8,13 +8,13 @@ Everything lives in one repo and deploys together, but each file runs in exactly
 |---|---|
 | `src/proxy.ts` | Runs before every page request. Maps the secret `ADMIN_PATH` onto the admin, checks the session cookie, and returns 404 for `/admin`. See [admin-and-auth.md](admin-and-auth.md). |
 | `src/db/schema.ts` | Table definitions (Drizzle). The single source of truth for the schema. |
-| `src/db/index.ts` | Creates the DB client. It uses Neon's HTTP driver for `*.neon.tech` URLs and `node-postgres` for anything else (local podman). With no `DATABASE_URL`, `hasDb` is `false`. |
+| `src/db/index.ts` | Creates the DB client. It uses Neon's HTTP driver for `*.neon.tech` URLs and `node-postgres` for anything else (local podman). With no `DATABASE_URL`, `hasDb` is `false`. Remote non-Neon URLs default to `sslmode=verify-full` (`src/db/url.ts`). |
 | `src/lib/data.ts` | All **public reads**, wrapped in a tagged cache. It falls back to `src/content/seed.ts` when there's no DB. |
-| `src/lib/auth.ts` | Password check, JWT session cookie, `requireAdmin()`. |
+| `src/lib/auth.ts` | Password check, session cookie, `requireAdmin()`. Signing and verifying the token live in `src/lib/session.ts`, which the proxy shares. |
 | `src/app/admin/actions.ts` | All **admin writes** (Server Actions). Each one calls `requireAdmin()` and then `updateTag(...)`. |
-| `src/app/actions/contact.ts` | Public Server Action: contact form → `messages` table (zod-validated, honeypot). |
+| `src/app/actions/contact.ts` | Public Server Action: contact form → `messages` table (zod-validated, honeypot, 20 an hour site-wide). |
 | `src/app/sitemap.ts`, `robots.ts`, `blog/rss.xml/route.ts`, `opengraph-image.tsx` | Generated SEO endpoints. |
-| `scripts/seed.ts`, `scripts/migrate-on-deploy.ts`, `scripts/dev-db-check.ts`, `scripts/sample-data.ts` | CLI scripts. They're never bundled into the site. |
+| `scripts/seed.ts`, `scripts/check-site-url.ts`, `scripts/migrate-on-deploy.ts`, `scripts/dev-db-check.ts`, `scripts/sample-data.ts` | CLI scripts. They're never bundled into the site. |
 | `drizzle/` | Generated SQL migrations. Committed to git. See [../database/migrations.md](../database/migrations.md). |
 
 ## Rendered on the server, sent as HTML (still no DB access in the browser)

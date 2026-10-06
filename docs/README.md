@@ -54,8 +54,13 @@ git push               # host builds; with RUN_MIGRATIONS=true (production) the 
 
 | File | Covers |
 |---|---|
-| `credentials.test.ts` | Username and password check: case rules, wrong values, and login disabled when env vars are missing |
-| `admin-routing.test.ts` | `ADMIN_PATH` parsing; the proxy's rewrite, 404, login redirect and session checks |
+| `credentials.test.ts` | Username and password check: case rules, wrong values, and login disabled when env vars are missing or the password is under 16 characters |
+| `admin-routing.test.ts` | `ADMIN_PATH` parsing; the proxy's rewrite, 404 (including encoded, doubled and capitalised spellings of `/admin`) and login redirect; session tokens: pinned algorithm, issuer, audience, role and `iat`, and a password change ending sessions |
 | `image-type.test.ts` | Uploads are identified by their bytes: PNG/JPEG/GIF/WebP/AVIF accepted; SVG, HTML and renamed files rejected |
-| `scripts.test.ts` | `migrate-on-deploy` runs only with `RUN_MIGRATIONS=true`, and `dev-db-check` error output (and that it never prints credentials) |
-| `db.integration.test.ts` | Creates a throwaway database beside your local one, runs the real migrations twice and the seed twice, then runs the site's settings and posts queries, and stores an image and serves it from `/media/[id]`. It drops the database afterwards and **skips** when no local Postgres is reachable. It never runs against Neon. |
+| `scripts.test.ts` | `check-site-url` fails production builds on a wrong `SITE_URL`; `migrate-on-deploy` runs only with `RUN_MIGRATIONS=true` and refuses when the pooled and direct URLs name different databases; `dev-db-check` error output. None of them prints credentials. |
+| `markdown.test.ts` | Attribute escaping and the URL-scheme allowlist for markdown links and images, including an end-to-end render |
+| `db-url.test.ts` | Remote Postgres URLs default to `sslmode=verify-full`; local hosts and explicit opt-outs are left alone |
+| `headers.test.ts` | `public/_headers` repeats every security header from `next.config.ts` |
+| `db.integration.test.ts` | Creates a throwaway database beside your local one, runs the real migrations twice and the seed twice, then runs the site's settings and posts queries, stores an image and serves it from `/media/[id]` (and a cached 404 for unknown ids), and checks the contact form's hourly cap. It drops the database afterwards and **skips** when no local Postgres is reachable. It never runs against Neon. |
+
+CI (`.github/workflows/ci.yml`) runs lint, a type check, these tests against a Postgres service (so the integration tests run there too), and `npm audit` on every push to `develop` and `main` and on pull requests.
