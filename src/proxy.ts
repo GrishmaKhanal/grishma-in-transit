@@ -16,11 +16,24 @@ async function authed(req: NextRequest) {
 
 const under = (path: string, base: string) => path === base || path.startsWith(`${base}/`);
 
+// Routing may decode %-escapes and collapse slashes after this check, so match on
+// the path as the router will see it: "/%61dmin" and "//admin" are "/admin".
+function canonical(pathname: string) {
+  let p = pathname;
+  try {
+    p = decodeURIComponent(p);
+  } catch {
+    // Malformed escapes: keep the raw path, the checks below still apply to it.
+  }
+  return p.replace(/\/{2,}/g, "/");
+}
+
 // Render the site's normal 404 so the internal path looks like any unknown URL.
 const notFound = (req: NextRequest) => NextResponse.rewrite(new URL("/__not-found", req.url));
 
 export async function proxy(req: NextRequest) {
-  const { pathname, search } = req.nextUrl;
+  const { search } = req.nextUrl;
+  const pathname = canonical(req.nextUrl.pathname);
 
   if (ADMIN_PUBLIC && under(pathname, ADMIN_PUBLIC)) {
     // The admin root renders the login form; everything below it needs a session.
@@ -34,7 +47,7 @@ export async function proxy(req: NextRequest) {
     return res;
   }
 
-  if (under(pathname, ADMIN_INTERNAL)) return notFound(req);
+  if (under(pathname, ADMIN_INTERNAL) || under(pathname.toLowerCase(), ADMIN_INTERNAL)) return notFound(req);
 
   return NextResponse.next();
 }

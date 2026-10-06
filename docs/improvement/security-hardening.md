@@ -31,7 +31,7 @@ The two Medium items are about *volume* (abuse and cost), not access. The Low it
 | S2 ✅ | Admin inbox | Paginate to 50 rows and add a bulk delete (read, or older than N days). This also starts an inbox retention policy. | ~40 lines |
 | S3 ✅ | Admin login | Enforce a minimum password length, add generation guidance to `.env.example` and [env-vars.md](../deploy/env-vars.md), and log failed logins without credential values. | ~10 lines |
 | S4 | Host | Add a Netlify rate-limit rule on POSTs to the admin path and `/contact`, if the plan allows. | dashboard |
-| S5 | Admin routing | Make the proxy also check the URL-decoded path. Make the admin page guard and `logout` respond with 404 or `/` instead of redirecting to the admin path. Add tests with encoded paths. | ~10 lines + tests |
+| S5 ✅ | Admin routing | Make the proxy also check the URL-decoded path. Make the admin page guard and `logout` respond with 404 or `/` instead of redirecting to the admin path. Add tests with encoded paths. | ~10 lines + tests |
 | S6 | Markdown | Escape `href`, `src`, `title` and `alt` in the custom renderers in `src/lib/markdown.ts`, and allow only safe URL schemes. Add a unit test. | ~15 lines |
 
 ## Do next: configuration and docs

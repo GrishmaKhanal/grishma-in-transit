@@ -85,3 +85,20 @@ test("admin subpages rewrite to the internal route with a session", async () => 
 test("paths that merely share the prefix are not admin", async () => {
   assert.ok((await hit("/studio-x9extra")).passthrough);
 });
+
+test("encoded, doubled and case-varied spellings of /admin also 404", async () => {
+  const t = await token();
+  for (const p of ["/%61dmin", "/%61dmin/posts", "/admin%2Fposts", "//admin", "//admin/posts", "/ADMIN", "/Admin/posts"]) {
+    assert.equal((await hit(p)).rewrite, "/__not-found", p);
+    assert.equal((await hit(p, t)).rewrite, "/__not-found", `${p} (authed)`);
+  }
+});
+
+test("an encoded spelling of the admin path is still guarded", async () => {
+  assert.equal((await hit("/studio-x9/%70osts")).location, "/studio-x9");
+  assert.equal((await hit("/studio-x9/%70osts", await token())).rewrite, "/admin/posts");
+});
+
+test("malformed escapes don't crash the proxy", async () => {
+  assert.ok((await hit("/blog/%E0%A4%A")).passthrough);
+});
