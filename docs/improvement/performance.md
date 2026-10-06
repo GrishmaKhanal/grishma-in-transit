@@ -43,9 +43,13 @@ LCP 4.0 s. The LCP element is the portrait `<Image>` in `src/app/(site)/about/pa
 
 ## PERF-3. Home hero poster is twice the size it's shown at (low)
 
+**Status: done.** The poster is now an `<img>` behind the video with an 800 px variant (13 KiB vs 35 KiB) picked by `srcset`.
+
 `/video/prithvi-highway-poster.webp` is 1600×896 but displays at 721×406 on mobile (about 28 KiB wasted). Ship an ~800 px variant and pick it with `srcset`/media, or let `next/image` serve the poster. `HeroVideo.tsx` already uses `preload="none"` for the video itself, which is right.
 
 ## PERF-4. JavaScript weight (low)
+
+**Status: browserslist checked, nothing to change.** This Next version already defaults to `chrome 111, edge 111, firefox 111, safari 16.4` (`node_modules/next/dist/docs/03-architecture/supported-browsers.md`), so a `browserslist` entry wouldn't drop anything. The remaining legacy-JS flag likely comes from the framework chunk; the bundle analysis below is still open.
 
 One shared chunk carries about 26 to 28 KiB of **unused JS** on every page and about 13 KiB of **legacy polyfills**. TBT is already 10 to 40 ms, so this is about smoothness on slow phones, not a blocker.
 - Run `next build` with a bundle analyser to find what's in that chunk. Likely suspects: a client component imported higher up than it needs to be, or a library that could stay server-side.
@@ -54,6 +58,7 @@ One shared chunk carries about 26 to 28 KiB of **unused JS** on every page and a
 ## PERF-5. Small items (low)
 
 - **Render-blocking CSS**, about 80 to 90 ms. One stylesheet blocks first paint. Check whether this Next version's CSS inlining option helps, and measure FCP before keeping it.
+- **Fonts (checked, keep as is):** Geist Mono *is* above the fold (nav numbers and the header role line), so its preload stays.
 - **Fonts.** Three families are loaded through `next/font` (Geist, Geist Mono, Source Serif 4 with the `opsz` axis), and all are preloaded. If Geist Mono isn't above the fold, set `preload: false` on it. The "preloaded but not used" console warnings seen on 2026-10-05 came from the 500 admin page, which never used the fonts, not from public pages.
 - **Forced reflow**, about 34 ms on `/about`, unattributed. Look again after PERF-2.
 

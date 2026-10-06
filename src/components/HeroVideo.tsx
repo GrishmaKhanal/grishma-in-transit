@@ -59,10 +59,22 @@ export function HeroVideo({ className = "" }: { className?: string }) {
 
   return (
     <figure className={`relative m-0 overflow-hidden bg-[#b9a9c9] ${className}`}>
+      {/* The poster frame, behind the video. An <img> rather than the video's poster
+          attribute so phones can pick the 800 px file via srcset. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- static file, sized by srcset */}
+      <img
+        src="/video/prithvi-highway-poster.webp"
+        srcSet="/video/prithvi-highway-poster-800.webp 800w, /video/prithvi-highway-poster.webp 1600w"
+        sizes="100vw"
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+        draggable={false}
+        className="absolute inset-0 h-full w-full object-cover object-[50%_100%]"
+      />
       <video
         ref={ref}
         className="absolute inset-0 h-full w-full object-cover object-[50%_100%]"
-        poster="/video/prithvi-highway-poster.webp"
         muted
         loop
         playsInline
