@@ -9,7 +9,6 @@ The review found **no Critical or High issues**: an anonymous visitor can't reac
 | # | Change |
 |---|---|
 | S4 | Add a rate-limit rule on POSTs to the admin path and `/contact`, if the plan allows. The contact form already caps itself at 20 messages an hour; a host rule stops the requests before they reach a function. |
-| S7 | Apply the scopes and deploy contexts from the table in [netlify.md](../deploy/netlify.md#3-environment-variables): admin secrets for Production only, scoped to Functions. The docs are updated; the Netlify settings themselves still need changing. |
 
 ## Do when the related work happens
 
@@ -30,5 +29,5 @@ These can't be verified from the repository. Run them on the first deploy previe
 1. Encoded spellings of `/admin` (`/%61dmin`, `//admin`) return the site's normal 404 on Netlify, as they do in the tests.
 2. Which responses (pages, `/media/<id>`, files in `public/`) carry the security headers from `next.config.ts` and `public/_headers`.
 3. An unpublished post 404s from a cold edge location, which confirms tag-based purge reaches the CDN.
-4. In the Netlify UI, confirm the deploy contexts and scopes of `DATABASE_URL_UNPOOLED`, `SESSION_SECRET` and `ADMIN_PASSWORD`, and whether a rate-limit rule exists.
+4. After logging in on production, open a page below the admin root (e.g. Posts). That confirms the proxy sees the Functions-scoped `SESSION_SECRET` and `ADMIN_PASSWORD`. Once S4 is in, confirm the rate-limit rule appears in the Netlify UI.
 5. Confirm which Neon role `DATABASE_URL` uses and how long point-in-time restore goes back.

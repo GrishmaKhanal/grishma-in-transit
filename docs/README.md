@@ -28,7 +28,7 @@ How this site is built, how data moves through it, and how to ship changes.
   - [first-deploy.md](deploy/first-deploy.md): the same for any host: what it needs, in order
   - [releasing.md](deploy/releasing.md): the everyday ship loop, previews, rollback
 - **improvement/**
-  - [roadmap.md](improvement/roadmap.md): **start here.** What to set before the next release, then what's left in order: SEO, smoothness, security
+  - [roadmap.md](improvement/roadmap.md): **start here.** What the next release changes, then what's left in order: SEO, smoothness, security
   - [seo.md](improvement/seo.md): the manual half of moving canonical and sitemap URLs to the real domain (`SITE_URL`, Search Console)
   - [performance.md](improvement/performance.md): the Lighthouse baseline (2026-10-05) and the open speed items: TTFB, the `/about` LCP, render-blocking CSS, the serif font's weight
   - [security-hardening.md](improvement/security-hardening.md): what's left from the 2026-10-02 security review: host settings, deploy-preview checks, items tied to the image library (full report kept local in the gitignored `docs/security-review/`)

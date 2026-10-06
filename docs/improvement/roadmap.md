@@ -4,15 +4,9 @@ What's left, in order: **SEO, then smoothness, then security**. Only open work i
 
 Each item is its own small branch off `develop` (e.g. `fix/seo-site-url`). Review it, check it on a deploy preview where noted, and merge back into `develop`. Deploys cost build credits, so batch config-only changes (env vars) with the next code deploy where possible.
 
-## Before the next release to `main`
+## The next release to `main`
 
-`develop` changes how production builds and how the admin logs in. Netlify applies env changes only on the next deploy, so set these first:
-
-1. `SITE_URL=https://grishmakhanal.com.np` for Production. **The production build fails without it**, on purpose (`scripts/check-site-url.ts`).
-2. `ADMIN_PASSWORD` of at least 16 characters, or admin login stays disabled.
-3. The env-var scopes and deploy contexts from [netlify.md](../deploy/netlify.md#3-environment-variables) (S7).
-
-What the release itself does:
+The production env vars it needs (`SITE_URL` on the real domain, a 16+ character `ADMIN_PASSWORD`, and the S7 scopes and contexts) were set on 2026-10-06 and take effect with that deploy. What the release itself does:
 - The admin has to log in once more: session tokens now carry an issuer and audience, and the production cookie is `__Host-admin_session`.
 - Migration `0002_messages_created_at_idx` adds an index. The build applies it with `RUN_MIGRATIONS=true`.
 
