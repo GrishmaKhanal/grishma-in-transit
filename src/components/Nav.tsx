@@ -25,7 +25,8 @@ export function Nav() {
               on ? "bg-accent text-white hover:text-white" : "text-ink"
             }`}
           >
-            <span className="font-mono text-[11px] opacity-75">0{i + 1}</span>
+            {/* Faded only when inactive: white at 75% on the accent drops below 4.5:1. */}
+            <span className={`font-mono text-[11px] ${on ? "" : "opacity-75"}`}>0{i + 1}</span>
             <span className="text-[15px] font-semibold">{label}</span>
           </Link>
         );

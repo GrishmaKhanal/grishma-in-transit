@@ -59,6 +59,8 @@ One shared chunk carries about 26 to 28 KiB of **unused JS** on every page and a
 
 Accessibility scores 95 to 96. Both failures repeat on every page, so each fix lands site-wide.
 
+**Status: A11Y-1 and A11Y-2 fixed** (accent `oklch(0.54 0.19 32)` = 4.87:1, `ink-5` `#6b6a64` = 4.76:1, `ink-6` no longer used for text on `/`, active nav number no longer faded, logo label starts with the monogram). Re-check with Lighthouse after the next deploy.
+
 ### A11Y-1. Colour contrast just under the line (medium, easy)
 
 All are tokens in `src/app/globals.css`. WCAG AA needs 4.5:1 for normal text.

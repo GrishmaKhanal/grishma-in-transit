@@ -27,10 +27,10 @@ export async function ogCard({ eyebrow, title, footer, monogram }: { eyebrow: st
           <div style={{ display: "flex", alignItems: "center", padding: "0 36px", fontFamily: "Mono", fontSize: 22, color: "#55554f" }}>{footer}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, padding: "0 80px" }}>
-          <div style={{ fontFamily: "Serif", fontSize: 30, color: "#cc361e" }}>{eyebrow}</div>
+          <div style={{ fontFamily: "Serif", fontSize: 30, color: "#c52f15" }}>{eyebrow}</div>
           <div style={{ fontFamily: "Serif", fontSize: title.length > 48 ? 64 : 80, lineHeight: 1.05, letterSpacing: "-0.02em", marginTop: 20 }}>{title}</div>
         </div>
-        <div style={{ height: 18, background: "#cc361e" }} />
+        <div style={{ height: 18, background: "#c52f15" }} />
       </div>
     ),
     { ...ogSize, fonts: await fonts() },
