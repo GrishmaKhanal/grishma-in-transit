@@ -2,6 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
+import { withVerifiedSsl } from "./url";
 
 // One variable, any host: DATABASE_URL is a plain Postgres connection string.
 // Neon URLs use Neon's HTTP driver (no connection pool to exhaust on serverless);
@@ -16,6 +17,6 @@ type DB = ReturnType<typeof drizzleNeon<typeof schema>>;
 
 export const db: DB = isNeon
   ? drizzleNeon(neon(url || "postgresql://placeholder@localhost/none"), { schema })
-  : (drizzlePg(url!, { schema }) as unknown as DB);
+  : (drizzlePg(withVerifiedSsl(url!), { schema }) as unknown as DB);
 
 export { schema };
