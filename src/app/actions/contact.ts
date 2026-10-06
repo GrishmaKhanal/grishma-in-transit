@@ -36,7 +36,9 @@ export async function sendMessage(_: ContactState, fd: FormData): Promise<Contac
     await db.insert(messages).values(parsed.data);
   } catch (e) {
     // Only the code: the error object can carry the message body or connection details.
-    console.error("contact: insert failed", (e as { code?: string })?.code ?? "unknown");
+    // Drizzle wraps driver errors, so the Postgres code sits on `cause`.
+    const err = e as { code?: string; cause?: { code?: string } } | null;
+    console.error("contact: insert failed", err?.code ?? err?.cause?.code ?? "unknown");
     return { error: "Couldn't send that. Please try again, or email me directly." };
   }
   return { ok: true };
