@@ -1,0 +1,10 @@
+# Security headers for files served straight from public/ (video, icons, assets).
+# Keep in sync with securityHeaders in next.config.ts; test/headers.test.ts checks it.
+/*
+  Strict-Transport-Security: max-age=63072000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'
+  Cross-Origin-Opener-Policy: same-origin
