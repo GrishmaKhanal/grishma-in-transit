@@ -3,13 +3,17 @@ import type { NextConfig } from "next";
 // Sent with every response. A full script CSP is left out on purpose: Next.js's inline
 // bootstrap scripts would need nonces, which turns every page dynamic. These are the
 // ones that cost nothing and close the common holes.
-const securityHeaders = [
+// public/_headers repeats them for files Netlify serves straight from public/
+// (test/headers.test.ts keeps the two in sync).
+// HSTS has no includeSubDomains yet: add it once every subdomain serves HTTPS.
+export const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000" }, // HTTPS only, 2 years
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" }, // no clickjacking via iframes
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
   { key: "Content-Security-Policy", value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" }, // no window handle for pages this site opens or is opened by
 ];
 
 const nextConfig: NextConfig = {

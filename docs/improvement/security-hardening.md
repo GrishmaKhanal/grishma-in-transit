@@ -53,7 +53,7 @@ The two Medium items are about *volume* (abuse and cost), not access. The Low it
 | S14 | Optional server-side HTML sanitiser for rendered markdown, at least for the editor preview. | A second editor, or regular pasting of third-party markdown |
 | S15 ✅ | Log everyone out when the password changes. Use the `__Host-` cookie prefix. | With S11 |
 | S16 | Move uploads off Server Actions so `bodySizeLimit` can return to the default. | Image library |
-| S17 | Headers: HSTS `includeSubDomains` (once every subdomain is HTTPS), COOP `same-origin`, and a `public/_headers` copy. | Any time |
+| S17 ✅ (partly) | Headers: HSTS `includeSubDomains` (once every subdomain is HTTPS), COOP `same-origin`, and a `public/_headers` copy. **COOP and `_headers` done; `includeSubDomains` waits until every subdomain is confirmed HTTPS.** | Any time |
 | S18 | Validate the `timezone` setting, and add an `error.tsx` to the `(site)` segment. | Any time |
 | S19 | Server-side check in `importStarterContent`, `rel="noreferrer"` on admin links to the public site, and a rename of the honeypot field so autofill can't trip it. | Any time |
 | S20 | Add `engines` / `.nvmrc`, plus a minimal CI job (lint, tests, `npm audit`). | Any time |
