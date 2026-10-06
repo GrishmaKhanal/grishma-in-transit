@@ -27,6 +27,7 @@ When `main` deploys, the build runs:
 
 ```
 npm run build
+ ├─ tsx scripts/check-site-url.ts            (production: fails on a missing, localhost or *.netlify.app SITE_URL)
  ├─ tsx scripts/migrate-on-deploy.ts
  │    ├─ RUN_MIGRATIONS unset (previews, local) → skip
  │    └─ RUN_MIGRATIONS=true (production)       → drizzle-kit migrate   (build fails if this fails)
@@ -71,3 +72,9 @@ A quick check, mirrored in the README's eval table:
 - `/sitemap.xml` lists every published post; drafts are absent
 - `$ADMIN_PATH` shows the login page with an `X-Robots-Tag: noindex` header
 - `/admin` and an unknown slug both return 404
+- Every published URL uses the real domain, and the Netlify subdomain redirects:
+  ```sh
+  curl -s https://grishmakhanal.com.np/ | grep -o '<link rel="canonical"[^>]*>'
+  curl -s https://grishmakhanal.com.np/robots.txt               # Sitemap: line on .com.np
+  curl -sI https://grishma-in-transit.netlify.app/ | head -1    # 301
+  ```
