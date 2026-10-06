@@ -57,6 +57,8 @@ const pairs = (fd: FormData, k: string) => piped(fd, k, 2).map(([k2, ...v]) => (
 
 export async function login(_: FormState, fd: FormData): Promise<FormState> {
   if (!checkCredentials(str(fd, "username"), String(fd.get("password") ?? ""))) {
+    // Never log what was typed: a mistyped password is often the real one.
+    console.warn("admin: failed login");
     await new Promise((r) => setTimeout(r, 800)); // slow down guessing
     return { error: "Wrong username or password." };
   }
