@@ -15,6 +15,13 @@
       "when": 1790615861816,
       "tag": "0001_media",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791284170965,
+      "tag": "0002_messages_created_at_idx",
+      "breakpoints": true
     }
   ]
 }

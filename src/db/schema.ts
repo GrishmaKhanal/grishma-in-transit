@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -128,7 +129,10 @@ export const messages = pgTable("messages", {
   body: text("body").notNull(),
   read: boolean("read").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  // The contact form's hourly cap counts recent rows; the inbox sorts by date.
+  index("messages_created_at_idx").on(t.createdAt),
+]);
 
 // Uploaded images, kept in Postgres so the site needs no separate file storage.
 // Base64 text rather than bytea: every driver (Neon HTTP, node-postgres) returns it

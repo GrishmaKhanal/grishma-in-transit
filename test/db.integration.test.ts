@@ -78,6 +78,29 @@ test("an uploaded image is stored in Postgres and served from /media/[id]", asyn
   assert.equal((await get("../../etc/passwd")).status, 404, "malformed id");
 });
 
+test("the contact form stores a message, then refuses once the hourly cap is reached", async (t) => {
+  if (!reachable) return t.skip("no local Postgres");
+  process.env.DATABASE_URL = testUrl; // src/db reads it at import
+  const { db } = await import("../src/db");
+  const { messages } = await import("../src/db/schema");
+  const { sendMessage } = await import("../src/app/actions/contact");
+  const form = (extra: Record<string, string> = {}) => {
+    const fd = new FormData();
+    for (const [k, v] of Object.entries({ name: "Test", email: "t@example.com", body: "Hello there", ...extra })) fd.set(k, v);
+    return fd;
+  };
+
+  await db.delete(messages);
+  assert.deepEqual(await sendMessage(undefined, form()), { ok: true });
+  await db.insert(messages).values(Array.from({ length: 19 }, () => ({ name: "x", email: "x@example.com", body: "filler" })));
+  const r = await sendMessage(undefined, form());
+  assert.match(r?.error ?? "", /Too many messages/);
+  // Old messages don't count toward the cap.
+  await db.update(messages).set({ createdAt: new Date(Date.now() - 2 * 3600_000) });
+  assert.deepEqual(await sendMessage(undefined, form()), { ok: true });
+  await db.delete(messages);
+});
+
 test("the site's settings and posts queries succeed", async (t) => {
   if (!reachable) return t.skip("no local Postgres");
   process.env.DATABASE_URL = testUrl; // src/db reads it at import
