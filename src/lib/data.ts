@@ -4,6 +4,7 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db, hasDb } from "@/db";
 import { companies, posts, projects, settings, type Company, type Project, type SiteSettings } from "@/db/schema";
 import { seedCompanies, seedPosts, seedProjects, seedSettings } from "@/content/seed";
+import { SLUG_RE } from "@/lib/slug";
 
 export type PostKind = "blog" | "note";
 
@@ -88,5 +89,9 @@ async function _getWork(): Promise<{ companies: CompanyWithProjects[]; side: Pro
 
 export const getSettings = cached(_getSettings, "settings", [TAGS.settings]);
 export const getPublishedPosts = cached(_getPublishedPosts, "posts", [TAGS.posts]);
-export const getPublishedPost = cached(_getPublishedPost, "post", [TAGS.posts]);
+const getPublishedPostCached = cached(_getPublishedPost, "post", [TAGS.posts]);
+// A slug that can't exist never reaches the cache or the database, so junk URLs
+// can't fill the data cache with one entry each.
+export const getPublishedPost = async (kind: PostKind, slug: string) =>
+  SLUG_RE.test(slug) ? getPublishedPostCached(kind, slug) : null;
 export const getWork = cached(_getWork, "work", [TAGS.work]);

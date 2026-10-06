@@ -49,7 +49,7 @@ The two Medium items are about *volume* (abuse and cost), not access. The Low it
 | # | Change | Natural moment |
 |---|---|---|
 | S12 | Strip image metadata on upload. Add media delete with CDN purge. | [Image library](image-library.md) |
-| S13 | Validate slugs before any database read, and 404 social cards for unknown posts. Memoise the OG fonts. Cache media 404s briefly. | Any blog-route change (overlaps with [performance.md](performance.md)) |
+| S13 ✅ | Validate slugs before any database read, and 404 social cards for unknown posts. Memoise the OG fonts. Cache media 404s briefly. | Any blog-route change (overlaps with [performance.md](performance.md)) |
 | S14 | Optional server-side HTML sanitiser for rendered markdown, at least for the editor preview. | A second editor, or regular pasting of third-party markdown |
 | S15 ✅ | Log everyone out when the password changes. Use the `__Host-` cookie prefix. | With S11 |
 | S16 | Move uploads off Server Actions so `bodySizeLimit` can return to the default. | Image library |
