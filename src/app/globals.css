@@ -9,13 +9,13 @@
   --color-ink-2: #2e2e2a;
   --color-ink-3: #3d3d38;
   --color-ink-4: #55554f;
-  --color-ink-5: #6f6e68;
-  --color-ink-6: #8a8983;
+  --color-ink-5: #6b6a64; /* 4.76:1 on paper */
+  --color-ink-6: #8a8983; /* 3.1:1 on paper: rules and large type only, not body text */
   --color-rule: #d3d2cc;
   --color-rule-soft: #e0dfd9;
   --color-rule-strong: #bdbcb5;
   --color-code: #e2e1dc;
-  --color-accent: oklch(0.56 0.19 32);
+  --color-accent: oklch(0.54 0.19 32); /* 4.87:1 on paper, 5.56:1 under white */
   --color-accent-light: oklch(0.72 0.16 36);
   --color-online: oklch(0.62 0.12 150);
   /* dark band */

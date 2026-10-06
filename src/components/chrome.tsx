@@ -8,7 +8,7 @@ export function Header({ s }: { s: SiteSettings }) {
       <div className="flex min-h-[76px] flex-wrap">
         <Link
           href="/"
-          aria-label={`${s.name} - home`}
+          aria-label={`${s.monogram} - ${s.name}, home`}
           className="flex min-h-[76px] w-[84px] flex-none items-center justify-center bg-ink font-serif text-[22px] font-extrabold tracking-[-.02em] text-paper hover:text-paper"
         >
           {s.monogram}

@@ -98,7 +98,7 @@ export default async function Home() {
                   <span>{p.title}</span>
                 </Link>
               ))}
-              <div className="py-3 font-serif text-[15px] text-ink-6">New entries slot in on top.</div>
+              <div className="py-3 font-serif text-[15px] text-ink-5">New entries slot in on top.</div>
             </div>
           </div>
         </section>
