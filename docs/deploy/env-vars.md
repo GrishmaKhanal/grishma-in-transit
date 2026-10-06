@@ -5,7 +5,7 @@ The app reads the same keys on every host, and none of them are host-specific. T
 | Variable | Needed | Secret | Used for |
 |---|---|---|---|
 | `DATABASE_URL` | for a live site | **yes** | Postgres connection string: posts, work, settings, messages **and uploaded images**. Without it the site shows built-in seed content, read-only. |
-| `DATABASE_URL_UNPOOLED` | no | **yes** | A direct (non-pooled) URL, if your provider gives one. Migrations prefer it; the app ignores it. |
+| `DATABASE_URL_UNPOOLED` | no | **yes** | A direct (non-pooled) URL, if your provider gives one. Migrations prefer it; the app ignores it. Set it for **Production only**, like `DATABASE_URL`. The build refuses to migrate when it and `DATABASE_URL` name different databases (Neon's `-pooler` host counts as the same); `MIGRATE_ALLOW_DIFFERENT_HOSTS=true` overrides that for providers whose direct host is unrelated. |
 | `RUN_MIGRATIONS` | production | no | `true` makes `npm run build` apply pending migrations before building. Leave it unset everywhere else. |
 | `ADMIN_PATH` | to enable the admin | optional | Secret admin URL, e.g. `/studio-7f3k2a`. Letters, numbers, `-`, `_`, `/`. Unset means the admin is off. See [../architecture/admin-and-auth.md](../architecture/admin-and-auth.md). |
 | `ADMIN_USERNAME` | to log in | optional | Admin login name, case-insensitive. Avoid `admin`. |

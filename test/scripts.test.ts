@@ -37,6 +37,37 @@ test("check-site-url passes the real domain, and only warns outside production",
   assert.equal(run("scripts/check-site-url.ts", {}).code, 0);
 });
 
+test("migrate-on-deploy refuses when the pooled and unpooled URLs are different databases", () => {
+  const r = run("scripts/migrate-on-deploy.ts", {
+    RUN_MIGRATIONS: "true",
+    DATABASE_URL: "postgresql://u:secretpw@ep-a-pooler.eu.aws.neon.tech/prod",
+    DATABASE_URL_UNPOOLED: "postgresql://u:secretpw@ep-b.eu.aws.neon.tech/prod",
+  });
+  assert.equal(r.code, 1);
+  assert.match(r.out, /point at different databases/);
+  assert.match(r.out, /ep-a\.eu\.aws\.neon\.tech\/prod/);
+  assert.doesNotMatch(r.out, /secretpw/, "credentials must not be printed");
+
+  const otherDb = run("scripts/migrate-on-deploy.ts", {
+    RUN_MIGRATIONS: "true",
+    DATABASE_URL: "postgresql://u:p@ep-a-pooler.eu.aws.neon.tech/prod",
+    DATABASE_URL_UNPOOLED: "postgresql://u:p@ep-a.eu.aws.neon.tech/staging",
+  });
+  assert.equal(otherDb.code, 1);
+});
+
+test("migrate-on-deploy treats Neon's pooled and direct hosts as the same database", () => {
+  // Port 1 on localhost-like hosts isn't reachable, so drizzle-kit itself fails, but
+  // only after the target check passed and printed the target.
+  const r = run("scripts/migrate-on-deploy.ts", {
+    RUN_MIGRATIONS: "true",
+    DATABASE_URL: "postgresql://u:p@ep-a-pooler.invalid:1/prod",
+    DATABASE_URL_UNPOOLED: "postgresql://u:p@ep-a.invalid:1/prod",
+  });
+  assert.match(r.out, /migrate: target ep-a\.invalid\/prod/);
+  assert.doesNotMatch(r.out, /different databases/);
+});
+
 test("dev-db-check explains an unreachable database and fails", () => {
   const r = run("scripts/dev-db-check.ts", { DATABASE_URL: "postgresql://u:secretpw@localhost:1/x" });
   assert.equal(r.code, 1);

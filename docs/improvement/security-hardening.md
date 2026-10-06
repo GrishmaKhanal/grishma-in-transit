@@ -39,7 +39,7 @@ The two Medium items are about *volume* (abuse and cost), not access. The Low it
 | # | Change |
 |---|---|
 | S7 | Leave `ADMIN_PATH` unset on deploy previews, or give previews their own `SESSION_SECRET` and `ADMIN_PASSWORD`. Scope the request-time secrets (`SESSION_SECRET`, `ADMIN_PASSWORD`, `ADMIN_USERNAME`) to Functions only, not Builds. Update the table in [netlify.md](../deploy/netlify.md). |
-| S8 | Make `scripts/migrate-on-deploy.ts` refuse to run when `DATABASE_URL_UNPOOLED` and `DATABASE_URL` point at different databases, and print the target hostname (never credentials). Document the unpooled variable as Production-only. |
+| S8 ✅ | Make `scripts/migrate-on-deploy.ts` refuse to run when `DATABASE_URL_UNPOOLED` and `DATABASE_URL` point at different databases, and print the target hostname (never credentials). Document the unpooled variable as Production-only. |
 | S9 | Default remote non-Neon Postgres URLs to `sslmode=verify-full` in `src/db/index.ts` and `drizzle.config.ts`, and mention `sslmode` wherever the docs say "any Postgres". This also covers the `pg` SSL-mode deprecation warning in the function logs. |
 | S10 | Replace the inline `DATABASE_URL='...' npm run ...` recipes in the deploy docs with `read -rs` or `netlify env:get`, so the connection string stays out of shell history. |
 | S11 | Pin JWT verification (algorithm, required claims, max age, role, issuer and audience), and share one session-key helper between `src/proxy.ts` and `src/lib/auth.ts`. |
