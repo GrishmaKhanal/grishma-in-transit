@@ -62,7 +62,13 @@ const subscribeMinute = (cb: () => void) => {
 export function LocalTime({ timeZone }: { timeZone: string }) {
   const time = useSyncExternalStore(
     subscribeMinute,
-    () => new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone }).format(new Date()),
+    () => {
+      try {
+        return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone }).format(new Date());
+      } catch {
+        return "--:--"; // a bad time zone saved before the admin validated it
+      }
+    },
     () => "--:--", // server render: time is filled in on the client
   );
   return <time>{time}</time>;
