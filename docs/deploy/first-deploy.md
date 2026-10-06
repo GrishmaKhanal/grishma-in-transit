@@ -44,5 +44,5 @@ npm run build
 ## Host notes
 
 - **Serverless hosts** (Netlify, Vercel): use a Postgres with a pooled or HTTP endpoint (Netlify Database, Neon). Neon URLs automatically use Neon's HTTP driver.
-- **Long-running servers** (VPS, Render, Fly): any Postgres works. Run `npm run build` with `RUN_MIGRATIONS=true`, then `npm start`. If you run more than one instance, set `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` to the same value on all of them.
+- **Long-running servers** (VPS, Render, Fly): any Postgres works (remote connections default to `sslmode=verify-full`; add `sslmode=no-verify` only for a self-signed certificate you trust). Run `npm run build` with `RUN_MIGRATIONS=true`, then `npm start`. If you run more than one instance, set `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` to the same value on all of them.
 - Uploads are limited to 4 MB per image, which fits every host's request limit.
