@@ -48,7 +48,12 @@ If the migration fails, the build fails and the old deploy keeps serving. If the
 If you'd rather not migrate from the build (for example, to watch it happen), remove `RUN_MIGRATIONS` from production, then before merging run, in your own terminal:
 
 ```sh
-DATABASE_URL='<production connection string>' DATABASE_URL_UNPOOLED='<same, or the direct one>' npm run db:migrate
+# Netlify: read the strings from the project, so they stay off screen and out of shell history.
+export DATABASE_URL="$(netlify env:get DATABASE_URL --context production)"
+export DATABASE_URL_UNPOOLED="$(netlify env:get DATABASE_URL_UNPOOLED --context production)"
+npm run db:migrate
+unset DATABASE_URL DATABASE_URL_UNPOOLED
+# Other hosts: `read -rs DATABASE_URL && export DATABASE_URL` and paste instead.
 ```
 
 ## Preview deployments

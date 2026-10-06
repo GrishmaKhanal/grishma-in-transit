@@ -31,7 +31,9 @@ npm run build
 3. **Deploy.** The build log shows `[✓] migrations applied successfully!`. That's `drizzle/*.sql` creating the tables.
 4. **Add content once.** Log in at `https://<site><ADMIN_PATH>` and click **Import starter content**. Or, from your terminal:
    ```sh
-   DATABASE_URL='<production connection string>' npm run db:seed
+   read -rs DATABASE_URL && export DATABASE_URL   # paste the string, press Enter; nothing echoes or lands in shell history
+   npm run db:seed
+   unset DATABASE_URL
    ```
    The seed is idempotent and never overwrites existing rows. The terminal route doesn't expire the page cache, so click **Refresh public pages** on the admin dashboard afterwards, or pages visited before the seed keep showing the empty state.
 5. **Check it.**

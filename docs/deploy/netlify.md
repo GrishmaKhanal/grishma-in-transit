@@ -57,19 +57,26 @@ Copy them straight from the dashboard into the env var fields. Don't commit them
 
 ### 3. Environment variables
 
-**Project configuration → Environment variables → Add a variable → Add a single variable.** Tick **Contains secret values** where noted. For **Scopes** leave "All scopes". For **Deploy contexts**, use the values below.
+**Project configuration → Environment variables → Add a variable → Add a single variable.** Tick **Contains secret values** where noted. Use the **Scopes** and **Deploy contexts** below.
 
-| Key | Value | Secret | Deploy contexts |
-|---|---|---|---|
-| `DATABASE_URL` | read-write connection string | ✔ | **Production** |
-| `RUN_MIGRATIONS` | `true` | | **Production** |
-| `ADMIN_PATH` | e.g. `/studio-3f9a1c` (no quotes, no spaces) | | All |
-| `ADMIN_USERNAME` | your login name | | All |
-| `ADMIN_PASSWORD` | long random password, not your local one | ✔ | All (ideally a different value for Deploy Previews) |
-| `SESSION_SECRET` | output of `openssl rand -base64 48` | ✔ | All (ideally a different value for Deploy Previews) |
-| `SITE_URL` | `https://grishmakhanal.com.np` (no trailing slash; the Netlify subdomain only before a domain is attached) | | Production |
+| Key | Value | Secret | Scopes | Deploy contexts |
+|---|---|---|---|---|
+| `DATABASE_URL` | read-write connection string | ✔ | All (the build migrates with it) | **Production** |
+| `DATABASE_URL_UNPOOLED` | direct string, if offered | ✔ | Builds | **Production** |
+| `RUN_MIGRATIONS` | `true` | | Builds | **Production** |
+| `ADMIN_PATH` | e.g. `/studio-3f9a1c` (no quotes, no spaces) | | All | **Production** (previews have no admin) |
+| `ADMIN_USERNAME` | your login name | | Functions | Production |
+| `ADMIN_PASSWORD` | 16+ random characters, not your local one | ✔ | Functions | Production |
+| `SESSION_SECRET` | output of `openssl rand -base64 48` | ✔ | Functions | Production |
+| `SITE_URL` | `https://grishmakhanal.com.np` (no trailing slash; the Netlify subdomain only before a domain is attached) | | All | Production |
 
-Why **Production** only for the first two: deploy previews then build without a database and show seed content. They can't run half-finished migrations against your real data.
+Why **Production** only for the database and migrations: deploy previews then build without a database and show seed content. They can't run half-finished migrations against your real data.
+
+Why the admin is **Production** only: a deploy preview runs whatever code is on the branch. With the production `SESSION_SECRET` and `ADMIN_PASSWORD` on a preview, a session cookie minted there would also work on the live site. If you do want an admin on previews, give the Deploy Previews context its **own** `ADMIN_PATH`, `ADMIN_PASSWORD` and `SESSION_SECRET`.
+
+Why **Functions** scope for the login secrets: they're only read at request time (by the proxy and the admin actions), so the build never needs them and they stay out of build logs and build plugins.
+
+**Netlify applies env changes only on the next deploy.** After changing a variable, trigger a deploy, or the site keeps running with the old value.
 
 Leftovers to **delete** if you added them earlier: `PROD`, `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`. Nothing reads them any more.
 
@@ -106,7 +113,8 @@ The tables now exist but are empty. Open `https://grishma-in-transit.netlify.app
 Or, from your own terminal:
 
 ```sh
-DATABASE_URL='<read-write string>' npm run db:seed
+# Read from Netlify, so the string never appears on screen or in shell history.
+DATABASE_URL="$(netlify env:get DATABASE_URL --context production)" npm run db:seed
 ```
 
 Then click **Refresh public pages** on the admin dashboard. A seed from the terminal doesn't expire the page cache.
@@ -133,7 +141,9 @@ Then click **Refresh public pages** on the admin dashboard. A seed from the term
 - **Netlify → Project → Database** shows the database and its connection strings.
 - **Drizzle Studio**, a table browser on your laptop:
   ```sh
-  DATABASE_URL='<read-only string>' DATABASE_URL_UNPOOLED='<read-only string>' npm run db:studio
+  read -rs RO && export DATABASE_URL="$RO" DATABASE_URL_UNPOOLED="$RO"   # paste the read-only string, press Enter
+  npm run db:studio
+  unset RO DATABASE_URL DATABASE_URL_UNPOOLED
   ```
 - **Any Postgres GUI** (TablePlus, DBeaver, pgAdmin, `psql`): use the read-only string. With the read-write one, your edits are live, though cached public pages keep showing old data until you click **Refresh public pages** on the admin dashboard.
 

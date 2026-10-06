@@ -25,10 +25,13 @@ Most hosts let you scope a variable to production, previews and local dev.
 
 - `RUN_MIGRATIONS=true`: **production only**. A preview applying an unreleased migration to the production database is how outages happen.
 - `DATABASE_URL`: production only is the safe default. Previews then run without a DB and show seed content. If you do give previews the production URL, editing content in a preview edits production.
-- Give previews a *different* `ADMIN_PASSWORD` and `SESSION_SECRET`, so a leaked preview URL can't log into production.
+- `ADMIN_PATH`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `SESSION_SECRET`: production only, so previews have no admin. If you want one on previews, give them a *different* `ADMIN_PATH`, `ADMIN_PASSWORD` and `SESSION_SECRET`, so a session from a preview can't log into production.
+- Where the host can scope variables by use (Netlify: **Scopes**), give the login secrets the request-time scope only (Functions), not Builds.
+- **Env changes take effect on the next deploy** on Netlify (and most hosts that bake env into a build). Change, then redeploy.
 
 ## Handling
 
 - Never commit `.env`. `.gitignore` covers `.env*` except `.env.example`.
 - Never put a secret in a `NEXT_PUBLIC_` variable. That ships it to every browser.
-- Never paste connection strings or passwords into chats, issues or screenshots. If one leaks, rotate it at the provider, update the env var and redeploy. Rotating `SESSION_SECRET` also logs everyone out.
+- Don't type connection strings inline (`DATABASE_URL='...' npm run ...`): they land in shell history. Use `read -rs DATABASE_URL && export DATABASE_URL`, or `netlify env:get`.
+- Never paste connection strings or passwords into chats, issues or screenshots. If one leaks, rotate it at the provider, update the env var and redeploy. Rotating `SESSION_SECRET` or `ADMIN_PASSWORD` also logs everyone out.
