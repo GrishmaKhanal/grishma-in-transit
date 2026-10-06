@@ -14,6 +14,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // AVIF first (about 20% smaller than WebP), WebP for browsers without it.
+  images: { formats: ["image/avif", "image/webp"] },
   experimental: {
     // Admin image uploads go through a Server Action; 4 MB image + multipart overhead.
     serverActions: { bodySizeLimit: "4200kb" },
