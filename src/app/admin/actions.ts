@@ -269,9 +269,21 @@ export async function deleteProject(fd: FormData) {
 
 /* ---------- settings ---------- */
 
+// An unknown IANA name makes Intl throw, which would crash the contact page.
+const isTimeZone = (tz: string) => {
+  try {
+    new Intl.DateTimeFormat("en-GB", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export async function saveSettings(_: FormState, fd: FormData): Promise<FormState> {
   await requireAdmin();
   assertDb();
+  const tz = str(fd, "timezone");
+  if (tz && !isTimeZone(tz)) return { error: `"${tz}" isn't a time zone. Use an IANA name, e.g. Asia/Kathmandu.` };
   const value: SiteSettings = {
     name: str(fd, "name"),
     monogram: str(fd, "monogram"),
