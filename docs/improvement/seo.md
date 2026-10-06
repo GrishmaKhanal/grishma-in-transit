@@ -1,6 +1,6 @@
 # SEO improvements
 
-Status: findings written up, fixes not started. Priority 1 in the [roadmap](roadmap.md).
+Status: code side of SEO-1 and the `/about` social card (SEO-3) done; the `SITE_URL` env change and Search Console steps are still manual. Priority 1 in the [roadmap](roadmap.md).
 
 Measured on the live site on 2026-10-05: Lighthouse 13.4.1 (mobile) on `/`, `/blog` and `/about`, plus `curl` against `robots.txt`, `sitemap.xml` and page heads.
 
@@ -23,7 +23,7 @@ On top of that, `grishma-in-transit.netlify.app` answers **200** with the full s
 
 **Fix**
 1. Set `SITE_URL=https://grishmakhanal.com.np` for the **Production** context in Netlify (no trailing slash), then redeploy. Env changes only reach the site on a new deploy.
-2. 301 the Netlify subdomain to the real domain. Add a host-conditioned rule to `netlify.toml` (or `public/_redirects`) that only matches the production subdomain, so deploy previews keep working:
+2. **Done in code:** 301 the Netlify subdomain to the real domain (`netlify.toml`). Add a host-conditioned rule to `netlify.toml` (or `public/_redirects`) that only matches the production subdomain, so deploy previews keep working:
    `https://grishma-in-transit.netlify.app/* https://grishmakhanal.com.np/:splat 301!`
 3. In Google Search Console, add `grishmakhanal.com.np` as a domain property, submit `https://grishmakhanal.com.np/sitemap.xml`, and spot-check one post with URL Inspection. The user-declared canonical should now be the `.com.np` URL.
 
@@ -38,7 +38,7 @@ On top of that, `grishma-in-transit.netlify.app` answers **200** with the full s
 
 ## SEO-3. Smaller items worth doing alongside (low)
 
-- **`/about` has no `og:image`.** `/`, `/blog` and `/work` do. Give it the site card or a portrait card.
+- **Done:** `/about` had no `og:image` (its `openGraph` override dropped the inherited one). It now has its own card, `src/app/(site)/about/opengraph-image.tsx`.
 - **Core Web Vitals feed ranking.** The page-speed items in [performance.md](performance.md) (TTFB and the `/about` LCP) are the SEO work after SEO-1.
 - **Accessibility contrast** ([performance.md](performance.md#accessibility)) doesn't affect the SEO score, but it is a Lighthouse failure on every page.
 - Once SEO-1 is live, re-run Lighthouse and the Rich Results Test on one blog post to confirm `BlogPosting` still validates with the new URLs.
