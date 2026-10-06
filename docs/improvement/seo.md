@@ -1,49 +1,22 @@
-# SEO improvements
+# SEO
 
-Status: code side of SEO-1 and the `/about` social card (SEO-3) done; the `SITE_URL` env change and Search Console steps are still manual. Priority 1 in the [roadmap](roadmap.md).
+Priority 1 in the [roadmap](roadmap.md). Only open work is listed; fixed items are removed once they're merged into `develop`, and `git log` has them.
 
-Measured on the live site on 2026-10-05: Lighthouse 13.4.1 (mobile) on `/`, `/blog` and `/about`, plus `curl` against `robots.txt`, `sitemap.xml` and page heads.
+## SEO-1. Point every published URL at the real domain (high)
 
-## Where it stands
+Canonical tags, `sitemap.xml`, the `robots.txt` `Sitemap:` line, and the Open Graph and JSON-LD URLs are all built from `SITE_URL` (`src/lib/site.ts`). Production still has it set to `https://grishma-in-transit.netlify.app`, so Google treats the `netlify.app` copy as the real one.
 
-Lighthouse scores SEO **100** on all three pages. Titles, meta descriptions, canonical tags, JSON-LD (`Person`, `WebPage`, `BlogPosting`, `BreadcrumbList`), `robots.txt` and the sitemap are all present. Lighthouse only checks that these tags exist. It doesn't check that they point at the right domain, and they don't.
+Already in `develop`: `netlify.toml` 301s `grishma-in-transit.netlify.app` to `grishmakhanal.com.np` (deploy previews are unaffected), and `scripts/check-site-url.ts` fails a production build while `SITE_URL` is missing, `localhost` or a `netlify.app` host.
 
-## SEO-1. Every URL the site publishes points at `netlify.app`, not the real domain (high)
+Left to do, by hand:
+1. Set `SITE_URL=https://grishmakhanal.com.np` for the **Production** context in Netlify (no trailing slash) **before** the next production deploy. Until then, the build guard fails that deploy on purpose.
+2. After the deploy, run the URL checks in [releasing.md](../deploy/releasing.md#after-every-production-deploy): canonical and `robots.txt` on `.com.np`, and the Netlify subdomain answering 301.
+3. In Google Search Console, add `grishmakhanal.com.np` as a domain property, submit `https://grishmakhanal.com.np/sitemap.xml`, and spot-check one post with URL Inspection. The user-declared canonical should be the `.com.np` URL.
+4. Re-run Lighthouse and the Rich Results Test on one blog post to confirm `BlogPosting` still validates with the new URLs.
 
-The site is served at `https://grishmakhanal.com.np`, but `SITE_URL` in production is the Netlify subdomain. Everything built from `SITE_URL` (`src/lib/site.ts`) says so:
+## After that
 
-| Output | Live value today |
-|---|---|
-| `<link rel="canonical">` on every page | `https://grishma-in-transit.netlify.app/...` |
-| `sitemap.xml` `<loc>` entries | `https://grishma-in-transit.netlify.app/...` |
-| `robots.txt` `Sitemap:` line | `https://grishma-in-transit.netlify.app/sitemap.xml` |
-| `og:image`, Open Graph and JSON-LD URLs | `https://grishma-in-transit.netlify.app/...` |
-
-On top of that, `grishma-in-transit.netlify.app` answers **200** with the full site instead of redirecting. Google sees two copies of every page, and the canonical tag tells it the `netlify.app` copy is the real one. Links and rankings collect on the Netlify subdomain, not on `grishmakhanal.com.np`. (`www.` and `http://` already 301 to the right place.)
-
-**Fix**
-1. Set `SITE_URL=https://grishmakhanal.com.np` for the **Production** context in Netlify (no trailing slash), then redeploy. Env changes only reach the site on a new deploy.
-2. **Done in code:** 301 the Netlify subdomain to the real domain (`netlify.toml`). Add a host-conditioned rule to `netlify.toml` (or `public/_redirects`) that only matches the production subdomain, so deploy previews keep working:
-   `https://grishma-in-transit.netlify.app/* https://grishmakhanal.com.np/:splat 301!`
-3. In Google Search Console, add `grishmakhanal.com.np` as a domain property, submit `https://grishmakhanal.com.np/sitemap.xml`, and spot-check one post with URL Inspection. The user-declared canonical should now be the `.com.np` URL.
-
-**Check after deploy:** `curl -s https://grishmakhanal.com.np/ | grep canonical`, then `curl -s https://grishmakhanal.com.np/robots.txt`, and `curl -sI https://grishma-in-transit.netlify.app/` returns 301.
-
-## SEO-2. Guard against it happening again (low)
-
-**Status: done.** `scripts/check-site-url.ts` runs first in `npm run build` and fails a `CONTEXT=production` build on a bad value; the curl checks are in releasing.md.
-
-`SITE_URL` falls back to `http://localhost:3000` when unset and accepts any host. A wrong value fails silently, as SEO-1 shows.
-
-- Fail the production build (or log a loud warning) when `SITE_URL` is missing, is `localhost`, or ends in `.netlify.app` while `CONTEXT=production`.
-- Add the post-deploy `curl` checks above to [releasing.md](../deploy/releasing.md).
-
-## SEO-3. Smaller items worth doing alongside (low)
-
-- **Done:** `/about` had no `og:image` (its `openGraph` override dropped the inherited one). It now has its own card, `src/app/(site)/about/opengraph-image.tsx`.
-- **Core Web Vitals feed ranking.** The page-speed items in [performance.md](performance.md) (TTFB and the `/about` LCP) are the SEO work after SEO-1.
-- **Accessibility contrast** ([performance.md](performance.md#accessibility)) doesn't affect the SEO score, but it is a Lighthouse failure on every page.
-- Once SEO-1 is live, re-run Lighthouse and the Rich Results Test on one blog post to confirm `BlogPosting` still validates with the new URLs.
+Core Web Vitals feed ranking, so the open items in [performance.md](performance.md) (TTFB, JS weight) are the next SEO work.
 
 ## Not issues
 
