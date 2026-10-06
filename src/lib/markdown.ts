@@ -1,12 +1,15 @@
 import "server-only";
 import { Marked, type Tokens } from "marked";
 import { codeToHtml } from "shiki";
+import { escapeAttr, safeUrl } from "./html-attr";
 import { slugify } from "./slug";
 
 export type Heading = { id: string; text: string; depth: number };
 
 /**
- * Render trusted (admin-authored) markdown to HTML on the server.
+ * Render admin-authored markdown to HTML on the server. Raw HTML in the source is
+ * passed through (the admin is trusted), but the attributes built here are escaped
+ * and limited to safe URL schemes.
  * Code blocks are highlighted with shiki so no highlighting JS ships.
  */
 export async function renderMarkdown(src: string) {
@@ -46,15 +49,16 @@ export async function renderMarkdown(src: string) {
         return `<h${depth} id="${id}"><a href="#${id}" class="anchor">${text}</a></h${depth}>`;
       },
       image({ href, title, text }) {
-        const t = title ? ` title="${title}"` : "";
-        return `<img src="${href}" alt="${text}"${t} loading="lazy" decoding="async" />`;
+        const t = title ? ` title="${escapeAttr(title)}"` : "";
+        return `<img src="${escapeAttr(safeUrl(href, "image"))}" alt="${escapeAttr(text)}"${t} loading="lazy" decoding="async" />`;
       },
       link({ href, title, tokens }) {
         const text = this.parser.parseInline(tokens);
-        const external = /^https?:\/\//.test(href);
-        const t = title ? ` title="${title}"` : "";
+        const url = safeUrl(href);
+        const external = /^https?:\/\//.test(url);
+        const t = title ? ` title="${escapeAttr(title)}"` : "";
         const rel = external ? ` target="_blank" rel="noopener noreferrer"` : "";
-        return `<a href="${href}"${t}${rel}>${text}</a>`;
+        return `<a href="${escapeAttr(url)}"${t}${rel}>${text}</a>`;
       },
     },
   });
