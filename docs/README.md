@@ -30,7 +30,7 @@ How this site is built, how data moves through it, and how to ship changes.
 - **improvement/**
   - [roadmap.md](improvement/roadmap.md): **start here.** What to set before the next release, then what's left in order: SEO, smoothness, security
   - [seo.md](improvement/seo.md): the manual half of moving canonical and sitemap URLs to the real domain (`SITE_URL`, Search Console)
-  - [performance.md](improvement/performance.md): the Lighthouse baseline (2026-10-05) and the open speed items: TTFB, the `/about` LCP, JS weight, render-blocking CSS
+  - [performance.md](improvement/performance.md): the Lighthouse baseline (2026-10-05) and the open speed items: TTFB, the `/about` LCP, render-blocking CSS, the serif font's weight
   - [security-hardening.md](improvement/security-hardening.md): what's left from the 2026-10-02 security review: host settings, deploy-preview checks, items tied to the image library (full report kept local in the gitignored `docs/security-review/`)
   - [image-library.md](improvement/image-library.md): named, searchable, reusable uploads with saved alt text, bytes in R2/S3 behind a CDN instead of Postgres (proposed)
 

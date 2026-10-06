@@ -16,7 +16,7 @@ Left to do, by hand:
 
 ## After that
 
-Core Web Vitals feed ranking, so the open items in [performance.md](performance.md) (TTFB, JS weight) are the next SEO work.
+Core Web Vitals feed ranking, so the open items in [performance.md](performance.md) (TTFB, font weight, render-blocking CSS) are the next SEO work.
 
 ## Not issues
 
