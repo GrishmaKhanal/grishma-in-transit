@@ -68,7 +68,7 @@ export async function login(_: FormState, fd: FormData): Promise<FormState> {
 
 export async function logout() {
   await destroySession();
-  redirect(ADMIN);
+  redirect("/"); // not the admin path: it shouldn't appear in a response nobody asked for
 }
 
 /* ---------- posts ---------- */

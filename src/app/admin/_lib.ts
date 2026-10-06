@@ -1,10 +1,13 @@
 import "server-only";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { isAdmin } from "@/lib/auth";
-import { ADMIN } from "@/lib/admin-path";
 
-/** Page-level guard (the proxy also guards, this is defence in depth). */
+/**
+ * Page-level guard (the proxy also guards, this is defence in depth). It 404s
+ * rather than redirecting, so a request that slipped past the proxy never gets
+ * the secret admin path back in a Location header.
+ */
 export async function guard() {
-  if (!(await isAdmin())) redirect(ADMIN);
+  if (!(await isAdmin())) notFound();
 }
 
