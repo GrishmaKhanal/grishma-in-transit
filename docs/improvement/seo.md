@@ -31,6 +31,8 @@ On top of that, `grishma-in-transit.netlify.app` answers **200** with the full s
 
 ## SEO-2. Guard against it happening again (low)
 
+**Status: done.** `scripts/check-site-url.ts` runs first in `npm run build` and fails a `CONTEXT=production` build on a bad value; the curl checks are in releasing.md.
+
 `SITE_URL` falls back to `http://localhost:3000` when unset and accepts any host. A wrong value fails silently, as SEO-1 shows.
 
 - Fail the production build (or log a loud warning) when `SITE_URL` is missing, is `localhost`, or ends in `.netlify.app` while `CONTEXT=production`.

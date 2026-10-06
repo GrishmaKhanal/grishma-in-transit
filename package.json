@@ -5,7 +5,7 @@
   "scripts": {
     "predev": "tsx scripts/dev-db-check.ts",
     "dev": "next dev",
-    "build": "tsx scripts/migrate-on-deploy.ts && next build",
+    "build": "tsx scripts/check-site-url.ts && tsx scripts/migrate-on-deploy.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",

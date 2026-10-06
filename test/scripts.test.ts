@@ -24,6 +24,19 @@ test("migrate-on-deploy fails loudly when asked to migrate without a database", 
   assert.match(r.out, /DATABASE_URL is missing/);
 });
 
+test("check-site-url fails a production build on a wrong SITE_URL", () => {
+  for (const SITE_URL of ["", "http://localhost:3000", "https://grishma-in-transit.netlify.app", "http://grishmakhanal.com.np"]) {
+    const r = run("scripts/check-site-url.ts", { CONTEXT: "production", SITE_URL });
+    assert.equal(r.code, 1, SITE_URL);
+  }
+});
+
+test("check-site-url passes the real domain, and only warns outside production", () => {
+  assert.equal(run("scripts/check-site-url.ts", { CONTEXT: "production", SITE_URL: "https://grishmakhanal.com.np" }).code, 0);
+  assert.equal(run("scripts/check-site-url.ts", { CONTEXT: "deploy-preview", SITE_URL: "" }).code, 0);
+  assert.equal(run("scripts/check-site-url.ts", {}).code, 0);
+});
+
 test("dev-db-check explains an unreachable database and fails", () => {
   const r = run("scripts/dev-db-check.ts", { DATABASE_URL: "postgresql://u:secretpw@localhost:1/x" });
   assert.equal(r.code, 1);
