@@ -9,7 +9,7 @@ The app reads the same keys on every host, and none of them are host-specific. T
 | `RUN_MIGRATIONS` | production | no | `true` makes `npm run build` apply pending migrations before building. Leave it unset everywhere else. |
 | `ADMIN_PATH` | to enable the admin | optional | Secret admin URL, e.g. `/studio-7f3k2a`. Letters, numbers, `-`, `_`, `/`. Unset means the admin is off. See [../architecture/admin-and-auth.md](../architecture/admin-and-auth.md). |
 | `ADMIN_USERNAME` | to log in | optional | Admin login name, case-insensitive. Avoid `admin`. |
-| `ADMIN_PASSWORD` | to log in | **yes** | Admin login password. Both it and the username must be set, or login is disabled. |
+| `ADMIN_PASSWORD` | to log in | **yes** | Admin login password, **16+ characters** (generate one with `openssl rand -base64 24`). Both it and the username must be set, or login is disabled. A shorter one also disables login. Failed logins are logged as `admin: failed login`, without what was typed. |
 | `SESSION_SECRET` | to log in | **yes** | Signs session cookies. 32+ characters: `openssl rand -base64 48`. |
 | `SITE_URL` | production | no | Public origin, e.g. `https://grishmakhanal.com.np`. It's read at build time, so a change needs a redeploy. |
 

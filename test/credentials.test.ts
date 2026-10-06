@@ -27,3 +27,11 @@ test("login is disabled unless both env vars are set", () => {
   assert.equal(checkCredentials("grishma", "", { ADMIN_USERNAME: "grishma", ADMIN_PASSWORD: "" }), false);
   assert.equal(checkCredentials("grishma", "x", {}), false);
 });
+
+test("a password shorter than 16 characters disables login", () => {
+  const short = { ADMIN_USERNAME: "grishma", ADMIN_PASSWORD: "fifteen-chars!!" };
+  assert.equal(short.ADMIN_PASSWORD.length, 15);
+  assert.equal(checkCredentials("grishma", short.ADMIN_PASSWORD, short), false);
+  const ok = { ADMIN_USERNAME: "grishma", ADMIN_PASSWORD: "sixteen-chars!!!" };
+  assert.equal(checkCredentials("grishma", ok.ADMIN_PASSWORD, ok), true);
+});
