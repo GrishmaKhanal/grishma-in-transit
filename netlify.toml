@@ -1,0 +1,12 @@
+# Build settings live in the Netlify UI (see docs/deploy/netlify.md). This file only
+# holds rules that must run at Netlify's edge, before the Next.js runtime.
+
+# The production subdomain answers with the full site, which gives Google a second
+# copy of every page. Send it to the real domain. The rule matches only this exact
+# host, so deploy previews (deploy-preview-N--grishma-in-transit.netlify.app) and
+# branch deploys keep working.
+[[redirects]]
+  from = "https://grishma-in-transit.netlify.app/*"
+  to = "https://grishmakhanal.com.np/:splat"
+  status = 301
+  force = true

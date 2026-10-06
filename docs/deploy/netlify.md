@@ -67,7 +67,7 @@ Copy them straight from the dashboard into the env var fields. Don't commit them
 | `ADMIN_USERNAME` | your login name | | All |
 | `ADMIN_PASSWORD` | long random password, not your local one | ✔ | All (ideally a different value for Deploy Previews) |
 | `SESSION_SECRET` | output of `openssl rand -base64 48` | ✔ | All (ideally a different value for Deploy Previews) |
-| `SITE_URL` | `https://grishma-in-transit.netlify.app` (your domain later) | | Production |
+| `SITE_URL` | `https://grishmakhanal.com.np` (no trailing slash; the Netlify subdomain only before a domain is attached) | | Production |
 
 Why **Production** only for the first two: deploy previews then build without a database and show seed content. They can't run half-finished migrations against your real data.
 
@@ -79,7 +79,7 @@ The same from a terminal inside the repo (it's already `netlify link`ed):
 
 ```sh
 netlify env:set RUN_MIGRATIONS true --context production
-netlify env:set SITE_URL https://grishma-in-transit.netlify.app --context production
+netlify env:set SITE_URL https://grishmakhanal.com.np --context production
 netlify env:set SESSION_SECRET "$(openssl rand -base64 48)" --secret
 netlify env:list
 ```
@@ -122,6 +122,8 @@ Then click **Refresh public pages** on the admin dashboard. A seed from the term
 ### 7. Custom domain
 
 **Domain management → Add a domain**, follow the DNS steps, and Netlify issues HTTPS. Then set `SITE_URL` to the domain and redeploy.
+
+`netlify.toml` 301s `grishma-in-transit.netlify.app` to `grishmakhanal.com.np`, so search engines see one copy of each page. It matches only that host, so deploy previews still work. If the domain or project name changes, update that rule too.
 
 ---
 
