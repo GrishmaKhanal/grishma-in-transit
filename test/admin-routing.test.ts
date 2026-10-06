@@ -1,6 +1,7 @@
 import { before, test } from "node:test";
 import assert from "node:assert/strict";
 import { SignJWT } from "jose";
+import { signSession, verifySession } from "../src/lib/session";
 import { NextRequest } from "next/server";
 
 // admin-path reads the env at import time, so set it before loading the proxy.
@@ -14,11 +15,7 @@ before(async () => {
   ({ normalizeAdminPath } = await import("../src/lib/admin-path"));
 });
 
-const token = (secret = SECRET) =>
-  new SignJWT({ role: "admin" })
-    .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("1h")
-    .sign(new TextEncoder().encode(secret));
+const token = (secret = SECRET) => signSession({ SESSION_SECRET: secret });
 
 async function hit(path: string, cookie?: string) {
   const req = new NextRequest(`http://localhost${path}`, {
@@ -101,4 +98,28 @@ test("an encoded spelling of the admin path is still guarded", async () => {
 
 test("malformed escapes don't crash the proxy", async () => {
   assert.ok((await hit("/blog/%E0%A4%A")).passthrough);
+});
+
+test("verifySession pins the algorithm, issuer, audience, role and required claims", async () => {
+  const env = { SESSION_SECRET: SECRET, ADMIN_PASSWORD: "a-long-enough-password" };
+  const key = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${SECRET}\0${env.ADMIN_PASSWORD}`)));
+  const base = () => new SignJWT({ role: "admin" }).setProtectedHeader({ alg: "HS256" }).setIssuer("site").setAudience("admin").setIssuedAt().setExpirationTime("1h");
+
+  assert.equal(await verifySession(await signSession(env), env), true);
+  assert.equal(await verifySession(await base().sign(key), env), true, "hand-built token with every claim");
+  assert.equal(await verifySession(await base().setIssuer("other").sign(key), env), false, "issuer");
+  assert.equal(await verifySession(await base().setAudience("other").sign(key), env), false, "audience");
+  assert.equal(await verifySession(await new SignJWT({ role: "viewer" }).setProtectedHeader({ alg: "HS256" }).setIssuer("site").setAudience("admin").setIssuedAt().setExpirationTime("1h").sign(key), env), false, "role");
+  assert.equal(await verifySession(await new SignJWT({ role: "admin" }).setProtectedHeader({ alg: "HS256" }).setIssuer("site").setAudience("admin").setExpirationTime("1h").sign(key), env), false, "no iat");
+  assert.equal(await verifySession(await new SignJWT({ role: "admin" }).setProtectedHeader({ alg: "HS512" }).setIssuer("site").setAudience("admin").setIssuedAt().setExpirationTime("1h").sign(new Uint8Array(64).fill(1)), env), false, "algorithm");
+  const none = `${Buffer.from('{"alg":"none"}').toString("base64url")}.${Buffer.from('{"role":"admin","iss":"site","aud":"admin"}').toString("base64url")}.`;
+  assert.equal(await verifySession(none, env), false, "alg none");
+  assert.equal(await verifySession(undefined, env), false);
+});
+
+test("changing ADMIN_PASSWORD or a short SESSION_SECRET invalidates sessions", async () => {
+  const env = { SESSION_SECRET: SECRET, ADMIN_PASSWORD: "old-password-1234567" };
+  const t = await signSession(env);
+  assert.equal(await verifySession(t, { ...env, ADMIN_PASSWORD: "new-password-1234567" }), false);
+  assert.equal(await verifySession(t, { ...env, SESSION_SECRET: "short" }), false);
 });

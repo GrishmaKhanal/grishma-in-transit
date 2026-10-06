@@ -42,7 +42,7 @@ The two Medium items are about *volume* (abuse and cost), not access. The Low it
 | S8 ✅ | Make `scripts/migrate-on-deploy.ts` refuse to run when `DATABASE_URL_UNPOOLED` and `DATABASE_URL` point at different databases, and print the target hostname (never credentials). Document the unpooled variable as Production-only. |
 | S9 ✅ | Default remote non-Neon Postgres URLs to `sslmode=verify-full` in `src/db/index.ts` and `drizzle.config.ts`, and mention `sslmode` wherever the docs say "any Postgres". This also covers the `pg` SSL-mode deprecation warning in the function logs. |
 | S10 | Replace the inline `DATABASE_URL='...' npm run ...` recipes in the deploy docs with `read -rs` or `netlify env:get`, so the connection string stays out of shell history. |
-| S11 | Pin JWT verification (algorithm, required claims, max age, role, issuer and audience), and share one session-key helper between `src/proxy.ts` and `src/lib/auth.ts`. |
+| S11 ✅ | Pin JWT verification (algorithm, required claims, max age, role, issuer and audience), and share one session-key helper between `src/proxy.ts` and `src/lib/auth.ts`. |
 
 ## Do when the related work happens
 
@@ -51,7 +51,7 @@ The two Medium items are about *volume* (abuse and cost), not access. The Low it
 | S12 | Strip image metadata on upload. Add media delete with CDN purge. | [Image library](image-library.md) |
 | S13 | Validate slugs before any database read, and 404 social cards for unknown posts. Memoise the OG fonts. Cache media 404s briefly. | Any blog-route change (overlaps with [performance.md](performance.md)) |
 | S14 | Optional server-side HTML sanitiser for rendered markdown, at least for the editor preview. | A second editor, or regular pasting of third-party markdown |
-| S15 | Log everyone out when the password changes. Use the `__Host-` cookie prefix. | With S11 |
+| S15 ✅ | Log everyone out when the password changes. Use the `__Host-` cookie prefix. | With S11 |
 | S16 | Move uploads off Server Actions so `bodySizeLimit` can return to the default. | Image library |
 | S17 | Headers: HSTS `includeSubDomains` (once every subdomain is HTTPS), COOP `same-origin`, and a `public/_headers` copy. | Any time |
 | S18 | Validate the `timezone` setting, and add an `error.tsx` to the `(site)` segment. | Any time |

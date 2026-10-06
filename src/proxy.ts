@@ -1,18 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtVerify } from "jose";
 import { ADMIN_INTERNAL, ADMIN_PUBLIC } from "@/lib/admin-path";
+import { SESSION_COOKIE, verifySession } from "@/lib/session";
 
-async function authed(req: NextRequest) {
-  const token = req.cookies.get("admin_session")?.value;
-  const s = process.env.SESSION_SECRET;
-  if (!token || !s) return false;
-  try {
-    await jwtVerify(token, new TextEncoder().encode(s));
-    return true;
-  } catch {
-    return false;
-  }
-}
+const authed = (req: NextRequest) => verifySession(req.cookies.get(SESSION_COOKIE)?.value);
 
 const under = (path: string, base: string) => path === base || path.startsWith(`${base}/`);
 
