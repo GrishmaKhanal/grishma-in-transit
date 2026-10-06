@@ -35,7 +35,9 @@ export default async function About() {
                   fill
                   sizes="(max-width: 720px) 100vw, 420px"
                   className="object-cover object-[50%_10%]"
-                  preload
+                  // The LCP element. `preload` alone didn't set the hint Lighthouse looks for.
+                  loading="eager"
+                  fetchPriority="high"
                 />
               </div>
             )}

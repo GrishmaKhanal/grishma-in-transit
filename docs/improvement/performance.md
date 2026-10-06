@@ -33,6 +33,8 @@ Things to test, in this order, measuring TTFB before and after each:
 
 ## PERF-2. `/about` portrait is the slowest thing on the site (medium)
 
+**Status: first two bullets done** (`loading="eager"` + `fetchPriority="high"` instead of `preload`, AVIF enabled). Lower `quality` only if AVIF alone doesn't close the gap; it needs `images.qualities` in `next.config.ts`. The third bullet waits for the image library.
+
 LCP 4.0 s. The LCP element is the portrait `<Image>` in `src/app/(site)/about/page.tsx`. Breakdown: TTFB 1070 ms, then **2.8 s downloading the image**.
 
 - It's discoverable and eager, but Lighthouse reports **no `fetchpriority="high"`**. Use the `Image` component's priority option for the above-the-fold portrait (check this Next version's docs in `node_modules/next/dist/docs/`; `preload` alone didn't set the hint).
