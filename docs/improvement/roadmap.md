@@ -24,7 +24,7 @@ What the release itself does:
 | 2 | | Security checks on a deploy preview | [security-hardening.md](security-hardening.md#checks-on-a-deploy-preview) | manual |
 | 3 | PERF-1 | Investigate TTFB: the proxy on every request, edge caching of HTML | [performance.md](performance.md) | measure first |
 | 4 | PERF-2 | Re-measure `/about` LCP; lower image quality only if it's still over 2.5 s | [performance.md](performance.md) | small |
-| 5 | PERF-4, PERF-5 | Bundle analysis, render-blocking CSS, `/about` reflow | [performance.md](performance.md) | small each |
+| 5 | PERF-5, PERF-6 | Render-blocking CSS, `/about` reflow; decide on the serif font's `opsz` axis (71 KB per page) | [performance.md](performance.md) | small each |
 | 6 | S4 | Netlify rate-limit rule on admin and `/contact` POSTs; then commit `docs/security-review/` | [security-hardening.md](security-hardening.md) | dashboard |
 | 7 | S17 | HSTS `includeSubDomains`, once every subdomain serves HTTPS | [security-hardening.md](security-hardening.md) | one line |
 | 8 | S12, S14, S16 | With the image library (which also finishes PERF-2) | [image-library.md](image-library.md) | with that work |

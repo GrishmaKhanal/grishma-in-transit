@@ -35,16 +35,27 @@ LCP was 4.0 s: TTFB 1070 ms, then 2.8 s downloading the portrait (the `<Image>` 
 - Measure `/about` LCP after the next deploy. If it's still over 2.5 s, lower `quality` for this photo; the value has to be added to `images.qualities` in `next.config.ts`.
 - The source is `/media/<id>`, served from Postgres, so a cold optimiser cache means a database read and a resize before the first byte. The [image library](image-library.md) moves the bytes to object storage behind a CDN, which removes this.
 
-## PERF-4. Unused JavaScript in the shared chunk (low)
-
-One shared chunk carries about 26 to 28 KiB of unused JS on every page. TBT is already 10 to 40 ms, so this is about smoothness on slow phones, not a blocker.
-- Run a bundle analysis of `next build` to find what's in that chunk. Likely suspects: a client component imported higher up than it needs to be, or a library that could stay server-side.
-- The ~13 KiB Lighthouse flags as legacy JavaScript isn't fixed by a `browserslist`: this Next version already targets Chrome/Edge/Firefox 111 and Safari 16.4 by default (`node_modules/next/dist/docs/03-architecture/supported-browsers.md`). It most likely comes from the framework chunk itself.
-
 ## PERF-5. Small items (low)
 
-- **Render-blocking CSS**, about 80 to 90 ms. One stylesheet blocks first paint. Check whether this Next version's CSS inlining option helps, and measure FCP before keeping it.
+- **Render-blocking CSS**, about 80 to 90 ms live (110 to 150 ms estimated in a local run, 2026-10-06). One 10.8 KB stylesheet blocks first paint. Check whether this Next version's CSS inlining option helps, and measure FCP before keeping it.
 - **Forced reflow**, about 34 ms on `/about`, unattributed. Look again once PERF-2 is re-measured.
+
+## PERF-6. The serif font's optical-size axis costs 71 KB on every page (medium, design call)
+
+Source Serif 4 is loaded with `axes: ["opsz"]` (`src/app/layout.tsx`). Its Latin file is **122 KB**, preloaded on every page: the largest asset after the hero video, and bigger than all the JavaScript Lighthouse flags. Without the axis it's **51 KB**. Measured 2026-10-06.
+
+The axis is what gives the large headlines their tighter display letterforms. Without it, the home headline sets about 12% wider and the intro paragraph wraps differently. Options:
+- Drop `axes: ["opsz"]` and accept the text-size letterforms at display sizes. One line; saves 71 KB per first visit.
+- Keep the look, but self-host a subset: instance the variable font to the weights the site uses (400 to 800) and a narrower `opsz` range with fontTools, then load it with `next/font/local`. More work; the saving depends on how far the ranges shrink.
+- Keep it as is, since the file is cached after the first visit.
+
+## Known Lighthouse flags with no fix in app code
+
+Checked with `npx next experimental-analyze` and a local Lighthouse run on 2026-10-06, so these don't need re-investigating:
+- **Unused JavaScript (27 to 29 KiB)** is all inside the React DOM chunk. The shared JS on every page is React, the Next router and the Turbopack runtime; the site's own client code is about 4 KB (`Nav`, `HeroVideo`, `WritingList`, the error boundary).
+- **Legacy JavaScript (~14 KiB estimated)** is Next's `polyfill-module` (`Array.prototype.at`, `flat`, `Object.hasOwn`, …), 1.4 KB raw in reality. Each polyfill is guarded and does nothing in modern browsers. A `browserslist` doesn't remove it: this Next version already targets Chrome/Edge/Firefox 111 and Safari 16.4.
+- **`/about` loads the `next/image` client chunk** (15 KB raw, 5.6 KB gzipped) for the portrait. `getImageProps` doesn't avoid it, because `next/image` always requires the client component; only importing Next internals would.
+- The 112 KB polyfill chunk in the build is `noModule`, so modern browsers never download it.
 
 ## Done when
 
