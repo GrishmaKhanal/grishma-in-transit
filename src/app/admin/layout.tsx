@@ -36,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </div>
             <AdminNav unread={unread} base={ADMIN} />
             <div className="flex items-stretch border-l border-ink text-[13px] font-medium">
-              <Link href="/" target="_blank" className="flex items-center px-4">
+              <Link href="/" target="_blank" rel="noreferrer" className="flex items-center px-4">
                 View site ↗
               </Link>
               <LogoutButton />

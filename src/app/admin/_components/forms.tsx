@@ -124,7 +124,7 @@ export function PostForm({ post, created }: { post?: Post; created?: boolean }) 
       barClassName={focus ? "" : "lg:col-span-2"}
       extra={
         livePath && (
-          <a href={livePath} target="_blank" className="underline">
+          <a href={livePath} target="_blank" rel="noreferrer" className="underline">
             View live ↗
           </a>
         )
@@ -381,7 +381,7 @@ function Section({ id, children }: { id: (typeof SECTIONS)[number][0]; children:
   return (
     <fieldset id={id} className="scroll-mt-6 space-y-4 border border-rule bg-[#faf9f6] p-5">
       <legend className="px-1 text-sm font-semibold">{title}</legend>
-      <a href={href} target="_blank" className="float-right -mt-2 text-xs text-ink-5 underline">
+      <a href={href} target="_blank" rel="noreferrer" className="float-right -mt-2 text-xs text-ink-5 underline">
         View {href} ↗
       </a>
       {children}

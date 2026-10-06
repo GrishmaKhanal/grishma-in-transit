@@ -39,7 +39,7 @@ export function ContactForm() {
             <textarea name="body" rows={5} required minLength={5} maxLength={5000} className={`${field} resize-y leading-[1.5] font-normal`} />
           </label>
           {/* honeypot: hidden from people, filled by bots */}
-          <input name="company" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
+          <input name="hp_extra" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span aria-live="polite" className={`font-serif text-sm ${state?.error ? "text-accent" : "text-ink-5"}`}>
               {state?.error ?? "Goes straight to my inbox."}

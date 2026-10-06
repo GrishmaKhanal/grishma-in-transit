@@ -55,7 +55,7 @@ The two Medium items are about *volume* (abuse and cost), not access. The Low it
 | S16 | Move uploads off Server Actions so `bodySizeLimit` can return to the default. | Image library |
 | S17 ✅ (partly) | Headers: HSTS `includeSubDomains` (once every subdomain is HTTPS), COOP `same-origin`, and a `public/_headers` copy. **COOP and `_headers` done; `includeSubDomains` waits until every subdomain is confirmed HTTPS.** | Any time |
 | S18 ✅ | Validate the `timezone` setting, and add an `error.tsx` to the `(site)` segment. | Any time |
-| S19 | Server-side check in `importStarterContent`, `rel="noreferrer"` on admin links to the public site, and a rename of the honeypot field so autofill can't trip it. | Any time |
+| S19 ✅ | Server-side check in `importStarterContent`, `rel="noreferrer"` on admin links to the public site, and a rename of the honeypot field so autofill can't trip it. | Any time |
 | S20 | Add `engines` / `.nvmrc`, plus a minimal CI job (lint, tests, `npm audit`). | Any time |
 
 ## Checks on a deploy preview

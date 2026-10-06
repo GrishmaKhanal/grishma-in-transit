@@ -18,8 +18,9 @@ const Input = z.object({
 });
 
 export async function sendMessage(_: ContactState, fd: FormData): Promise<ContactState> {
-  // Honeypot: real users never fill this hidden field.
-  if (String(fd.get("company") ?? "")) return { ok: true };
+  // Honeypot: real users never fill this hidden field. Its name matches nothing
+  // browsers autofill ("company" did), so a real visitor can't trip it by accident.
+  if (String(fd.get("hp_extra") ?? "")) return { ok: true };
   const parsed = Input.safeParse({
     name: fd.get("name"),
     email: fd.get("email"),
