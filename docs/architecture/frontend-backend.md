@@ -10,6 +10,7 @@ Everything lives in one repo and deploys together, but each file runs in exactly
 | `src/db/schema.ts` | Table definitions (Drizzle). The single source of truth for the schema. |
 | `src/db/index.ts` | Creates the DB client. It uses Neon's HTTP driver for `*.neon.tech` URLs and `node-postgres` for anything else (local podman). With no `DATABASE_URL`, `hasDb` is `false`. Remote non-Neon URLs default to `sslmode=verify-full` (`src/db/url.ts`). |
 | `src/lib/data.ts` | All **public reads**, wrapped in a tagged cache. It falls back to `src/content/seed.ts` when there's no DB. |
+| `src/lib/seo.ts` | Per-page metadata (`pageMetadata`) and the JSON-LD graph: one `WebSite` and one `Person` id that every page points at. |
 | `src/lib/auth.ts` | Password check, session cookie, `requireAdmin()`. Signing and verifying the token live in `src/lib/session.ts`, which the proxy shares. |
 | `src/app/admin/actions.ts` | All **admin writes** (Server Actions). Each one calls `requireAdmin()` and then `updateTag(...)`. |
 | `src/app/actions/contact.ts` | Public Server Action: contact form → `messages` table (zod-validated, honeypot, 20 an hour site-wide). |

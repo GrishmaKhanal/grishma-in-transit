@@ -14,7 +14,7 @@ The production env vars it needs (`SITE_URL` on the real domain, a 16+ character
 
 | Order | ID | What | Doc | Size |
 |---|---|---|---|---|
-| 1 | SEO-1 | Post-deploy URL checks, Search Console, Rich Results re-run | [seo.md](seo.md) | manual |
+| 1 | SEO-1, SEO-4 | Post-deploy URL checks, Search Console (sitemap, request indexing for the home page), Rich Results re-run | [seo.md](seo.md) | manual |
 | 2 | | Security checks on a deploy preview | [security-hardening.md](security-hardening.md#checks-on-a-deploy-preview) | manual |
 | 3 | PERF-1 | Investigate TTFB: the proxy on every request, edge caching of HTML | [performance.md](performance.md) | measure first |
 | 4 | PERF-2 | Re-measure `/about` LCP; lower image quality only if it's still over 2.5 s | [performance.md](performance.md) | small |

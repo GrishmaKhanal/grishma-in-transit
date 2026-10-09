@@ -60,6 +60,7 @@ git push               # host builds; with RUN_MIGRATIONS=true (production) the 
 | `scripts.test.ts` | `check-site-url` fails production builds on a wrong `SITE_URL`; `migrate-on-deploy` runs only with `RUN_MIGRATIONS=true` and refuses when the pooled and direct URLs name different databases; `dev-db-check` error output. None of them prints credentials. |
 | `markdown.test.ts` | Attribute escaping and the URL-scheme allowlist for markdown links and images, including an end-to-end render |
 | `db-url.test.ts` | Remote Postgres URLs default to `sslmode=verify-full`; local hosts and explicit opt-outs are left alone |
+| `seo.test.ts` | Every page's metadata carries its own social title, url and image plus the feed link; the home page's `WebSite`/`ProfilePage` graph and the short-name alias |
 | `headers.test.ts` | `public/_headers` repeats every security header from `next.config.ts` |
 | `db.integration.test.ts` | Creates a throwaway database beside your local one, runs the real migrations twice and the seed twice, then runs the site's settings and posts queries, stores an image and serves it from `/media/[id]` (and a cached 404 for unknown ids), and checks the contact form's hourly cap. It drops the database afterwards and **skips** when no local Postgres is reachable. It never runs against Neon. |
 
