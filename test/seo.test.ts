@@ -35,3 +35,22 @@ test("openGraph overrides win, and set the social title", () => {
   assert.equal(og(m).title, "Post");
   assert.equal((m.twitter as Record<string, unknown>).title, "Post");
 });
+
+test("shortName drops middle names, and only when there are some", async () => {
+  const { shortName } = await import("../src/lib/seo");
+  assert.equal(shortName("Grishma Raj Khanal"), "Grishma Khanal");
+  assert.equal(shortName("  Ada  King  Lovelace "), "Ada Lovelace");
+  assert.equal(shortName("Ada Lovelace"), undefined);
+});
+
+test("the home page graph declares the site and makes the person its main entity", async () => {
+  const { homeLd, PERSON_ID, WEBSITE_ID } = await import("../src/lib/seo");
+  const g = homeLd({ ...s, name: "Ada King Lovelace", countryCode: "NP", worksFor: "", alumniOf: "", socials: [{ label: "GitHub", handle: "ada", url: "https://github.com/ada" }], aboutPhoto: "" })["@graph"];
+  const site = g.find((n) => n["@type"] === "WebSite")!;
+  const page = g.find((n) => n["@type"] === "ProfilePage") as { mainEntity: Record<string, unknown> };
+  assert.equal(site["@id"], WEBSITE_ID);
+  assert.equal(site.name, "Ada King Lovelace");
+  assert.equal(page.mainEntity["@id"], PERSON_ID);
+  assert.equal(page.mainEntity.alternateName, "Ada Lovelace");
+  assert.deepEqual(page.mainEntity.sameAs, ["https://github.com/ada"]);
+});

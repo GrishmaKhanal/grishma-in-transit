@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import { PageIntro, SectionLabel } from "@/components/chrome";
 import { getSettings, getWork } from "@/lib/data";
-import { SITE_URL } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageLd, pageMetadata, personRef } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
@@ -16,12 +15,10 @@ export default async function Work() {
     <div className="wrap">
       <JsonLd
         data={{
-          "@context": "https://schema.org",
-          "@type": "ProfilePage",
-          mainEntity: {
-            "@type": "Person",
-            name: s.name,
-            url: SITE_URL,
+          ...pageLd(s, { type: "WebPage", path: "/work", name: `Work - ${s.name}` }),
+          // The home page is the profile; this page adds the roles to the same person.
+          about: {
+            ...personRef(s),
             hasOccupation: companies.flatMap((c) =>
               c.roles.map((r) => ({ "@type": "Occupation", name: r.title, skills: r.stack.join(", ") })),
             ),
