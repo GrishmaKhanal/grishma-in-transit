@@ -64,6 +64,14 @@ async function _getPublishedPost(kind: PostKind, slug: string) {
   return row ?? null;
 }
 
+// When the site copy (name, intros, about text) last changed. Wrapped in an object
+// so revive() turns the cached string back into a Date.
+async function _getSettingsUpdatedAt(): Promise<{ updatedAt: Date | null }> {
+  if (!hasDb) return { updatedAt: null };
+  const row = await db.query.settings.findFirst({ where: eq(settings.key, "site"), columns: { updatedAt: true } });
+  return { updatedAt: row?.updatedAt ?? null };
+}
+
 export type CompanyWithProjects = Company & { projects: Project[] };
 
 async function _getWork(): Promise<{ companies: CompanyWithProjects[]; side: Project[] }> {
@@ -88,6 +96,7 @@ async function _getWork(): Promise<{ companies: CompanyWithProjects[]; side: Pro
 }
 
 export const getSettings = cached(_getSettings, "settings", [TAGS.settings]);
+export const getSettingsUpdatedAt = cached(_getSettingsUpdatedAt, "settings-updated", [TAGS.settings]);
 export const getPublishedPosts = cached(_getPublishedPosts, "posts", [TAGS.posts]);
 const getPublishedPostCached = cached(_getPublishedPost, "post", [TAGS.posts]);
 // A slug that can't exist never reaches the cache or the database, so junk URLs
