@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedPost, getPublishedPosts, getSettings, type PostKind } from "@/lib/data";
 import { readingTime, renderMarkdown } from "@/lib/markdown";
-import { SITE_URL, abs, postPath } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { abs, postPath } from "@/lib/site";
+import { WEBSITE_ID, pageMetadata, personRef } from "@/lib/seo";
 import { CopyCode } from "./CopyCode";
 import { JsonLd } from "./JsonLd";
 import { postEyebrow } from "@/lib/format";
@@ -65,8 +65,10 @@ export async function Article({ kind, slug }: { kind: PostKind; slug: string }) 
             dateModified: p.updatedAt.toISOString(),
             keywords: p.tags.join(", "),
             wordCount: p.content.split(/\s+/).length,
-            author: { "@type": "Person", name: s.name, url: SITE_URL },
-            publisher: { "@type": "Person", name: s.name, url: SITE_URL },
+            author: personRef(s),
+            publisher: personRef(s),
+            inLanguage: "en",
+            isPartOf: { "@id": WEBSITE_ID },
             mainEntityOfPage: { "@type": "WebPage", "@id": url },
             url,
           },

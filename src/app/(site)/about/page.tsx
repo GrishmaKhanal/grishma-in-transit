@@ -3,7 +3,8 @@ import Image from "next/image";
 import { SocialRows } from "@/components/SocialRows";
 import { getSettings } from "@/lib/data";
 import { renderMarkdown } from "@/lib/markdown";
-import { pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { pageLd, pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
@@ -25,6 +26,7 @@ export default async function About() {
   const { html } = await renderMarkdown(s.aboutBody);
   return (
     <div className="wrap">
+      <JsonLd data={pageLd(s, { type: "AboutPage", path: "/about", name: `About - ${s.name}` })} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] items-start gap-x-16 gap-y-10 pt-[clamp(56px,8vw,88px)] pb-16">
         {/* Without a portrait the column is left out, so the text takes the full width. */}
         {(s.aboutPhoto || s.aboutPhotoCaption) && (

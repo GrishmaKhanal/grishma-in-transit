@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { SiteSettings } from "@/db/schema";
+import { abs } from "./site";
 
 type Who = Pick<SiteSettings, "name" | "role" | "location">;
 type OpenGraph = NonNullable<Metadata["openGraph"]>;
@@ -49,5 +50,84 @@ export function pageMetadata(
       ...openGraph,
     } as OpenGraph,
     twitter: { card: "summary_large_image", title: social, description, ...(!ownImage && { images: [card] }) },
+  };
+}
+
+/* ---------- structured data (JSON-LD) ---------- */
+
+// One id per entity, so every page's JSON-LD points at the same person and site
+// instead of describing a new one each time. The home page is their home.
+export const PERSON_ID = abs("/#person");
+export const WEBSITE_ID = abs("/#website");
+
+/** "Grishma Raj Khanal" → "Grishma Khanal": how people often search for a full name. */
+export function shortName(name: string): string | undefined {
+  const parts = name.trim().split(/\s+/);
+  return parts.length > 2 ? `${parts[0]} ${parts[parts.length - 1]}` : undefined;
+}
+
+type PersonFields = Pick<
+  SiteSettings,
+  "name" | "role" | "location" | "countryCode" | "worksFor" | "alumniOf" | "socials" | "aboutPhoto"
+>;
+
+/** The full Person, described once on the home page. Other pages use personRef. */
+export function personLd(s: PersonFields) {
+  return {
+    "@type": "Person",
+    "@id": PERSON_ID,
+    name: s.name,
+    alternateName: shortName(s.name),
+    url: abs("/"),
+    jobTitle: s.role,
+    image: s.aboutPhoto ? abs(s.aboutPhoto) : undefined,
+    worksFor: s.worksFor ? { "@type": "Organization", name: s.worksFor } : undefined,
+    alumniOf: s.alumniOf || undefined,
+    address: { "@type": "PostalAddress", addressLocality: s.location, addressCountry: s.countryCode },
+    sameAs: s.socials.map((x) => x.url).filter((u) => u.startsWith("http")),
+  };
+}
+
+export const personRef = (s: Pick<SiteSettings, "name">) => ({ "@type": "Person", "@id": PERSON_ID, name: s.name, url: abs("/") });
+
+/**
+ * Home page graph: the WebSite (Google takes the site name shown in results from
+ * it) and a ProfilePage whose main entity is the person, so a search for their
+ * name lands on the home page rather than /about.
+ */
+export function homeLd(s: PersonFields & Who) {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": WEBSITE_ID,
+        url: abs("/"),
+        name: s.name,
+        alternateName: shortName(s.name),
+        inLanguage: "en",
+        publisher: { "@id": PERSON_ID },
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": abs("/#webpage"),
+        url: abs("/"),
+        name: siteTitle(s),
+        isPartOf: { "@id": WEBSITE_ID },
+        mainEntity: personLd(s),
+      },
+    ],
+  };
+}
+
+/** Any other page: what it's about, tied to the same site and person. */
+export function pageLd(s: Pick<SiteSettings, "name">, { type, path, name }: { type: string; path: string; name: string }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": type,
+    url: abs(path),
+    name,
+    isPartOf: { "@id": WEBSITE_ID },
+    about: personRef(s),
   };
 }

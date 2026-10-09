@@ -6,8 +6,8 @@ import { Sign } from "@/components/Sign";
 import { SectionLabel } from "@/components/chrome";
 import { getPublishedPosts, getSettings, getWork } from "@/lib/data";
 import { postEyebrow, postNo } from "@/lib/format";
-import { SITE_URL, abs, postPath } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { postPath } from "@/lib/site";
+import { homeLd, pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
@@ -20,20 +20,7 @@ export default async function Home() {
 
   return (
     <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "Person",
-          name: s.name,
-          url: SITE_URL,
-          jobTitle: s.role,
-          image: s.aboutPhoto ? abs(s.aboutPhoto) : undefined,
-          worksFor: s.worksFor ? { "@type": "Organization", name: s.worksFor } : undefined,
-          alumniOf: s.alumniOf || undefined,
-          address: { "@type": "PostalAddress", addressLocality: s.location, addressCountry: s.countryCode },
-          sameAs: s.socials.map((x) => x.url).filter((u) => u.startsWith("http")),
-        }}
-      />
+      <JsonLd data={homeLd(s)} />
 
       {/* Below xl: text, then the full video. At xl the video fills the section and the text
           sits top-left over the sky, clear of the bus in the lower third. */}
