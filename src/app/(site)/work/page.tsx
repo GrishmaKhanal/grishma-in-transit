@@ -3,10 +3,11 @@ import { JsonLd } from "@/components/JsonLd";
 import { PageIntro, SectionLabel } from "@/components/chrome";
 import { getSettings, getWork } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
-  return { title: "Work", description: s.workIntro, alternates: { canonical: "/work" } };
+  return pageMetadata(s, { title: "Work", description: s.workIntro, path: "/work" });
 }
 
 export default async function Work() {

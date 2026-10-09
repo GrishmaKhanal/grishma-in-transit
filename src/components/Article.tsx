@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getPublishedPost, getPublishedPosts, getSettings, type PostKind } from "@/lib/data";
 import { readingTime, renderMarkdown } from "@/lib/markdown";
 import { SITE_URL, abs, postPath } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import { CopyCode } from "./CopyCode";
 import { JsonLd } from "./JsonLd";
 import { postEyebrow } from "@/lib/format";
@@ -21,24 +22,24 @@ export async function articleMetadata(kind: PostKind, slug: string): Promise<Met
   const s = await getSettings();
   const title = p.seoTitle || p.title;
   const description = p.seoDescription || p.excerpt || p.subtitle || undefined;
-  const url = postPath(p);
   return {
-    title,
-    description,
-    keywords: p.tags,
-    alternates: { canonical: url },
-    openGraph: {
-      type: "article",
-      url,
+    ...pageMetadata(s, {
       title,
       description,
-      publishedTime: p.publishedAt?.toISOString(),
-      modifiedTime: p.updatedAt.toISOString(),
-      authors: [s.name],
-      tags: p.tags,
-    },
-    // Social image comes from the colocated opengraph-image.tsx.
-    twitter: { card: "summary_large_image", title, description },
+      path: postPath(p),
+      // The post's own title on social cards, without the site name. The image
+      // comes from the colocated opengraph-image.tsx.
+      openGraph: {
+        type: "article",
+        title,
+        publishedTime: p.publishedAt?.toISOString(),
+        modifiedTime: p.updatedAt.toISOString(),
+        authors: [s.name],
+        tags: p.tags,
+      },
+      ownImage: true,
+    }),
+    keywords: p.tags,
   };
 }
 

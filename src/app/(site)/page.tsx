@@ -7,8 +7,12 @@ import { SectionLabel } from "@/components/chrome";
 import { getPublishedPosts, getSettings, getWork } from "@/lib/data";
 import { postEyebrow, postNo } from "@/lib/format";
 import { SITE_URL, abs, postPath } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  return pageMetadata(s, { description: s.seoDescription, path: "/" });
+}
 
 export default async function Home() {
   const [s, posts, work] = await Promise.all([getSettings(), getPublishedPosts(), getWork()]);

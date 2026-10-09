@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { SocialRows } from "@/components/SocialRows";
 import { getSettings } from "@/lib/data";
+import { pageMetadata } from "@/lib/seo";
 import { ContactForm, LocalTime } from "./form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
-  return { title: "Contact", description: s.contactIntro, alternates: { canonical: "/contact" } };
+  return pageMetadata(s, { title: "Contact", description: s.contactIntro, path: "/contact" });
 }
 
 export default async function Contact() {

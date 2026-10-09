@@ -4,10 +4,11 @@ import { WritingList } from "@/components/WritingList";
 import { getPublishedPosts, getSettings } from "@/lib/data";
 import { postNo, readMin } from "@/lib/format";
 import { postPath } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
-  return { title: "Writing", description: s.writingIntro, alternates: { canonical: "/blog" } };
+  return pageMetadata(s, { title: "Writing", description: s.writingIntro, path: "/blog" });
 }
 
 export default async function Writing() {
