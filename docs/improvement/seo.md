@@ -13,6 +13,22 @@ Left to do, by hand:
 2. In Google Search Console, add `grishmakhanal.com.np` as a domain property, submit `https://grishmakhanal.com.np/sitemap.xml`, and spot-check one post with URL Inspection. The user-declared canonical should be the `.com.np` URL.
 3. Re-run Lighthouse and the Rich Results Test on one blog post to confirm `BlogPosting` still validates with the new URLs.
 
+## SEO-4. A search for the name should land on the home page (medium)
+
+On 2026-10-09 a search for "grishma khanal" showed `/about`, not the home page, and no sitelinks (the About / Writing / Work / Contact links Google shows under a site's main result). The main cause is SEO-1: every page's canonical names the `netlify.app` copy, so the home page on `.com.np` has nothing to show.
+
+Already in `develop`:
+- Each page has its own title, description, `og:*` and `twitter:*` tags, `og:url` and RSS link (`pageMetadata` in `src/lib/seo.ts`). Before, `/blog`, `/work` and `/contact` shared the home page's social title and description.
+- The home page declares a `WebSite` (Google takes the site name in results from it) and a `ProfilePage` whose main entity is the person, with "Grishma Khanal" as `alternateName`. `/about` is an `AboutPage` and `/work` a `WebPage` about the same person (one `@id`), so they no longer compete as profiles.
+- Sitemap `lastmod` is each page's own last change.
+
+Left to do, by hand, after the next production deploy:
+1. In Search Console, run URL Inspection on `https://grishmakhanal.com.np/` and click **Request indexing**. Check the "Google-selected canonical" is the `.com.np` home page.
+2. Run the Rich Results Test on the home page; it should find the `ProfilePage`.
+3. Optional, in the admin: put the full name in the home page hero (Settings → hero eyebrow or intro), so the page's visible text matches the search as well as its title does.
+
+Sitelinks can't be switched on. Google adds them once the home page is the clear top result for the name, and picks them from the navigation; the nav, distinct titles and `WebSite` data are what the site can contribute. Expect them a few weeks after the home page ranks.
+
 ## After that
 
 Core Web Vitals feed ranking, so the open items in [performance.md](performance.md) (TTFB, font weight, render-blocking CSS) are the next SEO work.
