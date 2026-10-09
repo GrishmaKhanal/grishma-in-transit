@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro, SectionLabel } from "@/components/chrome";
-import { getPublishedPosts, getWork } from "@/lib/data";
+import { getPublishedPosts, getSettings, getWork } from "@/lib/data";
+import { pageMetadata } from "@/lib/seo";
 import { postNo } from "@/lib/format";
 import { postPath } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Sitemap",
-  description: "Every page on this site.",
-  alternates: { canonical: "/sitemap" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  return pageMetadata(s, { title: "Sitemap", description: `Every page on ${s.name}'s site: writing, work, about and contact.`, path: "/sitemap" });
+}
 
 export default async function SitemapPage() {
   const [posts, work] = await Promise.all([getPublishedPosts(), getWork()]);

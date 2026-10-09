@@ -3,15 +3,17 @@ import Image from "next/image";
 import { SocialRows } from "@/components/SocialRows";
 import { getSettings } from "@/lib/data";
 import { renderMarkdown } from "@/lib/markdown";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
-  return {
+  return pageMetadata(s, {
     title: "About",
     description: `${s.aboutHeading} ${s.aboutBody.split("\n")[0]}`.slice(0, 160),
-    alternates: { canonical: "/about" },
+    path: "/about",
     openGraph: { type: "profile" },
-  };
+    ownImage: true,
+  });
 }
 
 const Label = ({ children }: { children: React.ReactNode }) => (
