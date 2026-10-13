@@ -11,7 +11,7 @@ async function main() {
     return;
   }
   const where = url.replace(/\/\/[^@]*@/, "//"); // drop credentials from output
-  const client = new pg.Client({ connectionString: url, connectionTimeoutMillis: 3000 });
+  const client = new pg.Client({ connectionString: url, connectionTimeoutMillis: 15000 }); // serverless DBs (Neon) can take seconds to wake
   try {
     await client.connect();
   } catch (e) {
