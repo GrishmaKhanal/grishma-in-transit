@@ -41,7 +41,7 @@ export function ContactForm() {
           {/* honeypot: hidden from people, filled by bots */}
           <input name="hp_extra" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span aria-live="polite" className={`font-serif text-sm ${state?.error ? "text-accent" : "text-ink-5"}`}>
+            <span aria-live="polite" className={`font-serif text-sm ${state?.error ? "text-accent" : "text-ink-4"}`}>
               {state?.error ?? "Goes straight to my inbox."}
             </span>
             <button disabled={pending} className="cursor-pointer border-0 bg-ink px-[22px] py-[13px] text-sm font-medium text-paper disabled:opacity-60">
