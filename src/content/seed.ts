@@ -117,7 +117,7 @@ The Aho–Corasick algorithm, introduced by Alfred V. Aho and Margaret J. Corasi
 
 ![An Aho-Corasick automaton](/assets/An-Aho-Corasick-automato.jpg)
 
-#### How it works:
+### How it works:
 
 1. **Build a trie** - All keywords are inserted into a trie (prefix tree), where each edge represents a character and terminal nodes mark complete words.
 2. **Add failure links** - Similar to the KMP algorithm, failure links allow the automaton to jump to the longest valid suffix when a mismatch occurs.

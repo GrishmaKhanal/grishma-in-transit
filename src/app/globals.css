@@ -15,7 +15,7 @@
   --color-rule-soft: #e0dfd9;
   --color-rule-strong: #bdbcb5;
   --color-code: #e2e1dc;
-  --color-accent: oklch(0.54 0.19 32); /* 4.87:1 on paper, 5.56:1 under white */
+  --color-accent: oklch(0.53 0.19 32); /* 5.09:1 on paper, 4.6:1 on panel, 5.8:1 under white */
   --color-accent-light: oklch(0.72 0.16 36);
   --color-online: oklch(0.62 0.12 150);
   /* dark band */
